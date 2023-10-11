@@ -1,0 +1,1 @@
+import {a,text} from "./main"
