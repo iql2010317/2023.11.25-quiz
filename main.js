@@ -9,5 +9,6 @@ const obj={
     age:18
 }
 
+
 // 預設匯出 只能有一個
 export default obj;
