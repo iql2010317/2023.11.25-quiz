@@ -16,6 +16,7 @@ export default {
 </script>
 <template>
     <nav class="topNav">
+        <!-- <p>{{ this.location }}</p> -->
         <RouterLink to="/">首頁</RouterLink>
         <RouterLink to="/Emit">Emit</RouterLink>
         <RouterLink to="/ExpenseTracker">ExpenseTracker</RouterLink>
@@ -27,7 +28,6 @@ export default {
         <RouterLink to="/ARAM">ARAM</RouterLink>
         <RouterLink to="/iframe">iframe</RouterLink>
         <RouterLink to="/i2">i2</RouterLink>
-        <!-- <p>{{ this.location }}</p> -->
     </nav>
 </template>
 <style lang="scss" scoped>

@@ -62,17 +62,7 @@ export default {
 
 <style lang="scss" scoped>
 
-  @media (max-width: 1500px) {
-    .c1 {
-        flex-direction: column;
-        align-items: center;
-        .c1Left{
-          // background-color: #782b2b;
-          // width: 1700px; //沒吃到設定
-          margin-bottom: 50px;
-        }
-    }
-}
+
 .c1 {
   width: 100vw;
   display: flex;
@@ -131,6 +121,19 @@ export default {
     }
   }
 }
+
+@media (max-width: 1500px) {
+    .c1 {
+        flex-direction: column;
+        align-items: center;
+        .c1Left{
+          // background-color: #782b2b;
+          // width: 1700px; //沒吃到設定
+          margin-bottom: 50px;
+        }
+    }
+}
+
 .br {
   margin-left: 4vw;
   margin-top: 6vh;

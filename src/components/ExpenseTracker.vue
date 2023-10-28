@@ -148,7 +148,7 @@ export default {
 
             <div class="content">
                 <div class="block" v-for="(item, index) in arr" :key="index">
-                    <span>{{index+1}}.　{{ item.name }}</span>
+                    <span>{{ index + 1 }}.　{{ item.name }}</span>
                     <div class="haha">
                         <span :class="{ 'positive': item.money > 0, 'negative': item.money < 0 }">{{ item.money }}</span>
                         <button @click="showDeleteConfirmation(index)">Delete</button>
@@ -160,37 +160,6 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-@media (max-width: 1500px) {
-    .bgArea {
-        flex-direction: column;
-    }
-    .whiteArea{
-        overflow: auto;
-    }
-    .blueArea {
-        position: sticky;
-        top: 0;
-        // height: 20vh;
-        // flex-direction: row;
-        // justify-content: space-evenly;
-
-        .headLeft {
-            display: flex;
-        }
-
-        .headRight {
-            display: flex;
-            align-items: center;
-        }
-
-        .change {
-            font-size: 14pt;
-        }
-    }
-
-}
-
-
 .bgArea {
     width: 100%;
     height: 85vh;
@@ -415,6 +384,239 @@ export default {
                     }
                 }
             }
+        }
+    }
+}
+
+@media (max-width: 1500px) {
+    .bgArea {
+        flex-direction: column;
+
+        .whiteArea {
+            // width: 60vw;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+
+            .top {
+                width: 60vw;
+                display: flex;
+
+                .topLeft {
+                    width: 30vw;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    color: rgb(36, 149, 36);
+                }
+
+                .topRight {
+                    width: 30vw;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    color: rgb(209, 19, 19);
+                }
+            }
+
+            .btn {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                .numBtn {
+                    width: 30vw;
+                    height: 8vh;
+                    border-radius: 20px;
+                    color: white;
+                    background-color: #6eceda;
+                    font-size: 18pt;
+                }
+            }
+
+
+
+            .content {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                overflow: auto;
+
+                .block {
+                    display: flex;
+                    width: 60%;
+                    justify-content: space-between;
+                    align-items: center;
+                    font-size: 24pt;
+                    border: 5px solid #6eceda;
+                    border-radius: 20px;
+                    padding: 15px 20px 15px 35px;
+                    margin: 10px 0;
+
+                    .haha {
+                        display: flex;
+                        align-items: center;
+
+                        span {
+                            margin-right: 30px;
+                        }
+
+                        button {
+                            width: 125px;
+                            font-size: 18pt;
+                            padding: 15px;
+                            border-radius: 20px;
+                            color: white;
+                            background-color: #6eceda;
+                        }
+                    }
+                }
+            }
+        }
+
+        .blueArea {
+            position: sticky;
+            top: 0;
+            height: 20vh;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+            background-color: #6eceda;
+
+            .headLeft {
+                display: flex;
+            }
+
+            .headRight {
+                display: flex;
+                align-items: center;
+            }
+
+            .change {
+                font-size: 14pt;
+            }
+        }
+
+        .blueArea {
+
+            .dialog-wrapper1 {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: rgba(0, 0, 0, 0.5); //000為黑 不透明度為0.5
+                z-index: 999;
+            }
+
+            .dialog1 {
+                width: 600px;
+                height: 400px;
+                background: white;
+                color: #6eceda;
+                text-align: left;
+                padding: 50px 100px;
+                border-radius: 20px;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+
+                .btnSep {
+                    margin-top: 20px;
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+                    position: relative;
+
+                    .tyty {
+                        background-color: #fff;
+                        color: #6eceda;
+                        font-size: 25pt;
+                        border: 0px;
+                        position: absolute;
+                        right: -70px;
+                        bottom: 220px;
+                    }
+
+                    button {
+                        padding: 15px;
+                        font-size: 18pt;
+                        border-radius: 8px;
+                        background-color: #6eceda;
+                        color: white;
+                    }
+                }
+
+                p {
+                    font-size: 18pt;
+                }
+
+                input {
+                    border: 2px solid #6eceda;
+                    border-radius: 15px;
+                    width: 100%;
+                    height: 40px;
+                }
+            }
+
+            .dialog-wrapper2 {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+
+            .dialog {
+                width: 600px;
+                height: 400px;
+                background: white;
+                color: #6eceda;
+                text-align: left;
+                padding: 0 100px;
+                border-radius: 20px;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+
+                .btnSep {
+                    margin-top: 20px;
+                    width: 100%;
+                    display: flex;
+                    justify-content: space-between;
+
+                    button {
+                        width: 100px;
+                        padding: 15px;
+                        font-size: 20pt;
+                        border-radius: 8px;
+                        background-color: #6eceda;
+                        color: white;
+                    }
+                }
+
+                p {
+                    font-size: 36pt;
+                    text-align: center;
+                    margin-bottom: 75px;
+                }
+
+                input {
+                    border: 2px solid #6eceda;
+                    border-radius: 15px;
+                    width: 100%;
+                    height: 40px;
+                }
+            }
+
         }
     }
 }
