@@ -8,10 +8,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.3.4"
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.2",
+    "pinia": "^2.1.7",
+    "sacc": "^0.0.1",
+    "sass": "^1.69.2",
+    "vue": "^3.3.7",
+    "vue-router": "^4.2.4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.3.4",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.3",
     "vite": "^4.4.9"
   }
 }
