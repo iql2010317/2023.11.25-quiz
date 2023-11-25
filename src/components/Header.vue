@@ -16,19 +16,10 @@ export default {
 </script>
 <template>
     <nav class="topNav">
-        <!-- <p>{{ this.location }}</p> -->
-        <RouterLink to="/">首頁</RouterLink>
-        <RouterLink to="/Emit">Emit</RouterLink>
-        <RouterLink to="/ExpenseTracker">ExpenseTracker</RouterLink>
-        <RouterLink to="/Vhouse/home">Vhouse</RouterLink>
-        <RouterLink to="/props">props</RouterLink>
-        <RouterLink to="/Vif&show">Vif&show</RouterLink>
-        <RouterLink to="/ProvideAndInject">ProvideAndInject</RouterLink>
-        <RouterLink to="/V50">Vpupu</RouterLink>
-        <RouterLink to="/ARAM">ARAM</RouterLink>
-        <RouterLink to="/iframe">iframe</RouterLink>
-        <RouterLink to="/i2">i2</RouterLink>
+        <RouterLink to="/questHome">QuestHome</RouterLink>
     </nav>
+
+    <!-- <p>{{ this.location }}</p> -->
 </template>
 <style lang="scss" scoped>
 .topNav {
@@ -39,12 +30,6 @@ export default {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    // opacity: 0;
-    // transition: 0.5s;
-    // &:hover{
-    // opacity: 1;
-    // }
-
     a {
         text-decoration: none;
         color: black;

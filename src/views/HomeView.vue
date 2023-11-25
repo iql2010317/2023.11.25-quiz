@@ -9,7 +9,7 @@ export default {
         { image: "../../public/uyuni-bolivia-cabecera.jpg" },
         { image: "../../public/09.24.jpg" },
       ],
-      activePanel: 0,
+      activePanel: 3,
     };
   },
   methods: {
@@ -27,6 +27,15 @@ export default {
 };
 </script>
 
+<template>
+</template>
+
+
+<!-- 
+
+
+<style>
+</style>
 
 <template>
   <h1 style="font-family: fantasy; text-align: center; margin: 30px 0">About Me</h1>
@@ -45,7 +54,7 @@ export default {
         <audio class="test" src="../../public/paiClip.mp3" controls></audio>
       </ul>
       <div class="toutei">
-        <img class="touteipic" style="object-fit: cover;
+        <img class="font" style="object-fit: cover;
             border-radius: 5px; object-position: 50% 50%; width: 150px; height: 180px;" src="../../public/pro001.jpg"
           alt="">
       </div>
@@ -57,12 +66,9 @@ export default {
     </div>
   </div>
   <div class="br"></div>
+</template> -->
 
-</template>
-
-<style lang="scss" scoped>
-
-
+<!-- <style lang="scss" scoped>
 .c1 {
   width: 100vw;
   display: flex;
@@ -71,8 +77,9 @@ export default {
     margin-left: 50px;
     width: 600px;
     position: relative;
+
     // border: 1px solid;
-    .test{
+    .test {
       position: absolute;
       top: 0;
       right: -80px;
@@ -86,9 +93,7 @@ export default {
       position: absolute;
       top: 0;
       left: 340px;
-      // right: 110px;
     }
-
 
     li {
       font-size: 16pt;
@@ -123,15 +128,16 @@ export default {
 }
 
 @media (max-width: 1500px) {
-    .c1 {
-        flex-direction: column;
-        align-items: center;
-        .c1Left{
-          // background-color: #782b2b;
-          // width: 1700px; //沒吃到設定
-          margin-bottom: 50px;
-        }
+  .c1 {
+    flex-direction: column;
+    align-items: center;
+
+    .c1Left {
+      // background-color: #782b2b;
+      // width: 1700px; //沒吃到設定
+      margin-bottom: 50px;
     }
+  }
 }
 
 .br {
@@ -141,4 +147,4 @@ export default {
   height: 3px;
   background-color: black;
 }
-</style>
+</style> -->

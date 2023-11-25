@@ -13,13 +13,9 @@ import { RouterView } from "vue-router";
 </template>
 
 <style lang="scss" scoped>
-.topHeader {
-    width: 100vw;
-    height: 12vh;
-}
-.hihi{
-    width: 100vw;
-    display: flex;
-    flex-direction: column;
+.topHeader{
+    height: 10vh;
 }
 </style>
+
+
