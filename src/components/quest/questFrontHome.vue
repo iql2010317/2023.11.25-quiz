@@ -10,9 +10,18 @@ export default {
             searchStartTime: '',
             searchEndTime: '',
             currentPage: 1,// 初始化当前页数为1
-            selectedQuestionnaires: [],
-            left: '<<',
-            right: '>>',
+
+            sortKey: '', // 預設的排序欄位
+            sortOrders: {
+                // 每個欄位的排序順序
+                'num': 1,
+                'questionName': 1,
+                'status': 1,
+                'startTime': 1,
+                'endTime': 1
+            },
+            left:'<<',
+            right:'>>',
         };
     },
     mounted() {
@@ -50,65 +59,27 @@ export default {
                     return response.json();
                 })
                 .then(data => {
-                    console.log(data);
+                    const publishedQuestionnaires = data.hwQuestionnaireList.filter(questionnaire => questionnaire.published === true);
 
-                    // 將數據進行倒序處理
-                    const reversedQuestionnaireList = data.hwQuestionnaireList.reverse();
-                    this.searchAllList.hwQuestionnaireList = reversedQuestionnaireList;
+                    // 對 publishedQuestionnaires 進行倒序排列
+                    const reversedPublishedQuestionnaires = publishedQuestionnaires.reverse();
+
+                    this.searchAllList.hwQuestionnaireList = reversedPublishedQuestionnaires;
+                    console.log(this.searchAllList);
 
                     this.currentPage = 1;
 
-                })
-                .catch(error => console.error('Error:', error));
-        },
-
-        deleteQuestionnaireList() {
-
-            const questionnaireIdList = this.selectedQuestionnaires
-
-            // 檢查至少一筆
-            if (questionnaireIdList.length == 0) {
-                alert('刪除問卷至少大於一筆');
-                return;
-            }
-
-            fetch('http://localhost:8080/api/HwQuestionnaire/deleteQuestionnaire', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(questionnaireIdList)
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log(data);
 
                 })
                 .catch(error => console.error('Error:', error));
+        },
 
-            alert('成功刪除問卷');
-        },
-        test() {
-            console.log(this.selectedQuestionnaires)
-        },
 
         getPage(pageNum) {
             const pageSize = 10; // 每页显示的数量
             const startIndex = (pageNum - 1) * pageSize;
             const endIndex = startIndex + pageSize;
             return this.searchAllList.hwQuestionnaireList.slice(startIndex, endIndex);
-        },
-        isPublished(startTime, endTime) {
-            const now = new Date();
-            const start = new Date(startTime);
-            const end = new Date(endTime);
-
-            return start <= now;
         },
         getStatus(startTime, endTime) {
             const now = new Date();
@@ -123,7 +94,53 @@ export default {
                 return '已結束';
             }
         },
+        isLinkEnabled(startTime, endTime) {
+            const now = new Date();
+            const startDate = new Date(startTime);
+            const endDate = new Date(endTime);
+            const status = this.getStatus(startTime, endTime);
 
+            if (status === '尚未開始' || (status === '已結束' && now < endDate)) {
+                return false;
+            } else {
+                return true;
+            }
+        },
+        isLinkEnabledForDoPage(startTime, endTime) {
+            const now = new Date();
+            const startDate = new Date(startTime);
+            const endDate = new Date(endTime);
+            const status = this.getStatus(startTime, endTime);
+
+            if (status === '尚未開始' || status === '已結束') {
+                return false;
+            }
+            else {
+                return true;
+            }
+        },
+
+        sortBy(key) {
+            this.sortKey = key;
+            this.sortOrders[key] = this.sortOrders[key] * -1;
+            // 根據點擊的欄位進行排序
+            this.searchAllList.hwQuestionnaireList.sort((a, b) => {
+                return this.sortOrders[key] * (a[key] > b[key] ? 1 : -1);
+            });
+        },
+        getStatusColor(startTime, endTime) {
+            const status = this.getStatus(startTime, endTime);
+
+            if (status === '尚未開始') {
+                return 'orange'; // 设置尚未开始状态的文字颜色为橙色
+            } else if (status === '進行中') {
+                return 'green'; // 设置进行中状态的文字颜色为绿色
+            } else if (status === '已結束') {
+                return 'red'; // 设置已结束状态的文字颜色为红色
+            } else {
+                return 'black'; // 默认颜色为黑色
+            }
+        },
         // 上一页逻辑
         goToPreviousPage() {
             if (this.currentPage > 1) {
@@ -136,6 +153,8 @@ export default {
                 this.currentPage++;
             }
         },
+
+
     }
 };
 </script>
@@ -144,87 +163,65 @@ export default {
     <div class="questHomeBody">
         <div class="searchList">
             <div class="searchListTop">
-                <label>問卷標題(這裡是後台)</label>
+                <label>問卷標題(這裡是前台)</label>
                 <input type="search" v-model="searchText">
             </div>
             <div class="searchListDown">
-                <label for="startDate">開始日期：</label>
-                <input id="startDate" class="searchStartTime" type="date" v-model="searchStartTime">
-
-                <label for="endDate">結束日期：</label>
-                <input id="endDate" class="searchEndTime" type="date" v-model="searchEndTime">
+                <label for="">開始/結束</label>
+                <input class="searchStartTime" type="date" v-model="searchStartTime">
+                <input class="searchEndTime" type="date" v-model="searchEndTime">
                 <button class="searchButton" v-on:click="searchParam()">搜尋</button>
-                <button><a href="/questHome/createQuestPage">新增問卷</a></button>
-                <a href="/questHome"><button class="searchButton" v-on:click="deleteQuestionnaireList()">刪除問卷</button></a>
-                
             </div>
         </div>
         <div class="showList">
             <table>
                 <thead>
                     <tr>
-                        <th>刪除</th>
-                        <th>＃</th>
-                        <th>問卷(新的列表fromDB)
-                        </th>
-                        <th>狀態</th>
-                        <th>開始時間</th>
-                        <th>結束時間</th>
-                        <th>數據統計</th>
+                        <th @click="sortBy('num')">＃</th>
+                        <th @click="sortBy('questionName')">問卷(新的列表fromDB)</th>
+                        <th @click="sortBy('status')">狀態</th>
+                        <th @click="sortBy('startTime')">開始時間</th>
+                        <th @click="sortBy('endTime')">結束時間</th>
+                        <th>觀看統計</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(quest, index) in getPage(currentPage)" :key="index">
-
-                        <td>
-                            <!-- 在這裡設置 checkbox，使用 v-model 綁定選中的問卷 -->
-                            <input type="checkbox" :value="quest.questionnaireId" v-model="selectedQuestionnaires"
-                                :disabled="quest.published == 1">
-                        </td>
-
                         <td>{{ quest.questionnaireId }}</td>
+
                         <td>
-                            <!-- 根据问卷发布状态决定是否显示修改链接 -->
-                            <router-link v-if="quest.published == 0"
-                                :to="'/questHome/updateQuestPage/' + quest.questionnaireId">
+                            <router-link v-if="isLinkEnabledForDoPage(quest.startTime, quest.endTime)"
+                                :to="'/questHome/doQuestPage/' + quest.questionnaireId" class="router-link-custom">
                                 {{ quest.questionName }}
                             </router-link>
-                            <span v-else>
-                                {{ quest.questionName }}
-                            </span>
+                            <span v-else>{{ quest.questionName }}</span>
                         </td>
 
                         <td>
-                            <!-- 根據開始時間和結束時間來判斷問卷狀態 -->
-                            <span v-if="quest.published == 0">未發布</span>
-                            <span v-else>
-                                <span
-                                    v-if="isPublished(quest.startTime, quest.endTime) && getStatus(quest.startTime, quest.endTime) === '進行中'">
-                                    進行中
-                                </span>
-                                <span v-else-if="!isPublished(quest.startTime, quest.endTime)">
-                                    尚未開始
-                                </span>
-                                <span v-else>
-                                    已結束
-                                </span>
+                            <span :style="{ color: getStatusColor(quest.startTime, quest.endTime) }">
+                                {{ getStatus(quest.startTime, quest.endTime) }}
                             </span>
                         </td>
 
                         <td>{{ quest.startTime }}</td>
                         <td>{{ quest.endTime }}</td>
-                        <td><router-link :to="'/questHome/showDetailPage/' + quest.questionnaireId">觀看統計</router-link></td>
+
+                        <td>
+                            <router-link v-if="isLinkEnabled(quest.startTime, quest.endTime)"
+                                :to="'/questHome/showDetailPage/' + quest.questionnaireId" class="router-link-custom">
+                                觀看統計
+                            </router-link>
+                            <span v-else>觀看統計</span>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div class="showPages">
-            <!-- 上一页按钮 -->
             <button class="pageButton" @click="goToPreviousPage" :disabled="currentPage === 1">{{ this.left }}</button>
             <button v-for="page in totalPages" :key="page" @click="currentPage = page" class="pageButton">
                 {{ page }}
             </button>
-            <!-- 下一页按钮 -->
             <button class="pageButton" @click="goToNextPage" :disabled="currentPage === totalPages">{{ this.right
             }}</button>
         </div>
@@ -237,12 +234,11 @@ export default {
     flex-direction: column;
     align-items: center;
     background-color: #f0f0f0;
-
+    // padding: 20px;
 
     .searchList {
         margin-top: 15px;
-        background-color: #FFE9D2;
-        /* 淡橘色 */
+        background-color: #BBFFD8;
         width: 900px;
         border: 1px solid #ccc;
         padding: 15px;
@@ -283,9 +279,8 @@ export default {
 
             .searchButton {
                 padding: 5px 10px;
-                background-color: #FF8C00;
-                /* 深橘色 */
-                // border: 1px solid #3a9e5f;
+                background-color: #55c57a;
+                border: 1px solid #3a9e5f;
                 border-radius: 5px;
                 cursor: pointer;
                 color: white;
@@ -327,7 +322,7 @@ export default {
         height: 495px;
         border: 1px solid #ccc;
         border-radius: 10px;
-        // overflow: auto;
+        overflow: auto;
         background-color: #fff;
 
         .router-link-custom {
@@ -356,14 +351,12 @@ export default {
         }
 
         th {
-            background-color: #FFDAB9;
-            /* 淡橘色 */
+            background-color: #BAE8CA;
             color: black;
         }
 
         tr:nth-child(even) {
-            background-color: #FFE9D2;
-            /* 淡橘色 */
+            background-color: #BBFFD8;
         }
     }
 

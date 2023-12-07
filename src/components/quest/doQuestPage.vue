@@ -7,25 +7,19 @@ export default {
                 hwQuestionnaireList: [],
                 hwQuestionList: []
             },
-            doquestArr: {
-                userName: '',
-                userPhone: '',
-                userEmail: '',
-                userAge: '',
-            },
-            userResponses: [],
+            doquestArr: [], //現在更改為陣列
             page: 1,
+
         };
     },
     mounted() {
         this.search();
-
     },
     methods: {
 
         search() {
-            const questionnaireIdToFind = this.$route.params.wantId; 
-            console.log("本頁頁碼 "+questionnaireIdToFind);
+            const questionnaireIdToFind = this.$route.params.wantId;
+            console.log("本頁頁碼 " + questionnaireIdToFind);
 
             fetch('http://localhost:8080/api/HwQuestionnaire/search', {
                 method: 'GET',
@@ -40,75 +34,57 @@ export default {
                     return response.json();
                 })
                 .then(data => {
-                    console.log(data);
+                    console.log(data); //第一次 全部的數據
 
                     const filteredQuestionnaire = data.hwQuestionnaireList.find(item => item.questionnaireId == questionnaireIdToFind);
-                    console.log(filteredQuestionnaire) 
-
                     if (filteredQuestionnaire) {
                         this.searchAllList.hwQuestionnaireList = filteredQuestionnaire;
                         this.searchAllList.hwQuestionList = data.hwQuestionList.filter(item => item.questionnaireId == questionnaireIdToFind);
-                    } 
-                    console.log(this.searchAllList);
+                    }
+                    console.log(this.searchAllList); //第二次 利用questionnaireId過濾數據
                 })
                 .catch(error => console.error('Error:', error));
         },
 
         goToPreviewPage() {
-            this.page = 2
+            // 檢查是否有必填未填寫
+            const requiredQuestions = this.searchAllList.hwQuestionList.filter(question => question.necessary);
 
+            // 遍歷必填問題，檢查是否至少有一個選項被選中
+            const unfilledRequiredQuestions = requiredQuestions.filter(question => {
+                if (question.questionType === 'text') {
+                    return !this.doquestArr[question.questionId]; // 如果填空題的答案為空，回傳 true
+                } else if (question.questionType === 'radio') {
+                    return !this.doquestArr[question.questionId]; // 如果單選題未選中，回傳 true
+                } else if (question.questionType === 'checkbox') {
+                    // 檢查至少有一個選項被選中
+                    const options = question.optionText.split(';');
+                    return !options.some(option => this.doquestArr[question.questionId + '_' + options.indexOf(option)]);
+                }
+                return false;
+            });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-            // this.doquestArr.userResponses = this.questArrLocal[this.a].questions.map(question => {
-            //     if (question.questionType === 'radio') {
-            //         const selectedOption = question.options.find(option => option.answers && option.answers.length > 0);
-            //         return {
-            //             question: question.question,
-            //             answers: selectedOption ? selectedOption.text : '未選擇',
-            //         };
-            //     } else if (question.questionType === 'checkbox') {
-            //         const selectedOptions = question.options.filter(option => option.answers && option.answers.length > 0);
-            //         return {
-            //             question: question.question,
-            //             answers: selectedOptions.length > 0 ? selectedOptions.map(option => option.text) : [],
-            //         };
-            //     } else if (question.questionType === 'text') {
-            //         // 处理简答题
-            //         return {
-            //             question: question.question,
-            //             answers: question.userResponse || '未填寫',
-            //         };
-            //     }
-            // });
+            // 如果有未填寫的必填問題，顯示提示或阻止提交
+            if (unfilledRequiredQuestions.length > 0) {
+                alert('請填寫所有必填問題！');
+                // 或是其他提示或阻止送出的操作
+            } else {
+                // 所有必填問題都已填寫，可以進行送出資料的操作
+                this.page = 2
+            }
         },
+
+
         backToQuestPage() {
             this.page = 1
         },
+
     },
     components: {
         previewdoQuestPage,
     }
 };
 </script>
-
 
 
 <template>
@@ -118,63 +94,126 @@ export default {
             <h6>問卷名稱:{{ searchAllList.hwQuestionnaireList.questionName }}</h6>
             <h6>問卷描述:{{ searchAllList.hwQuestionnaireList.description }}</h6>
         </div>
+        <div class="backToFix" v-if="this.page == 1">
+            <div class="fixedQuest">
+                <div class="formField">
+                    <label for="name">姓名</label>
+                    <input type="text" id="name" v-model="doquestArr.name">
+                </div>
+                <div class="formField">
+                    <label for="phone">手機</label>
+                    <input type="text" id="phone" v-model="doquestArr.phoneNumber">
+                </div>
+                <div class="formField">
+                    <label for="email">Email</label>
+                    <input type="text" id="email" v-model="doquestArr.email">
+                </div>
+                <div class="formField">
+                    <label for="age">年齡</label>
+                    <input type="text" id="age" v-model="doquestArr.age">
+                </div>
+            </div>
+            <div class="fluidQuest">
+                <div class="questionSection" v-for="(question, index) in searchAllList.hwQuestionList" :key="index">
+                    <div class="questionContainer">
+                        <label>問題 {{ index + 1 }}: {{ question.questionText }}</label>
+                        <span class="requiredIndicator" v-if="question.necessary == 1">*</span>
+                    </div>
+                    <div class="inputOptions" v-if="question.questionType === 'radio'">
+                        <div v-for="(option, optionIndex) in question.optionText.split(';')" :key="optionIndex">
+                            <input type="radio" :id="'q_' + index + '_o_' + optionIndex" :value="option"
+                                :name="'question_' + index" v-model="doquestArr[question.questionId]">
+                            <label :for="'q_' + index + '_o_' + optionIndex">{{ option }}</label>
+                        </div>
+                    </div>
+                    <div class="inputOptions" v-else-if="question.questionType === 'checkbox'">
+                        <div v-for="(option, optionIndex) in question.optionText.split(';')" :key="optionIndex">
+                            <input type="checkbox" :id="'q_' + index + '_o_' + optionIndex" :value="option"
+                                v-model="doquestArr[question.questionId + '_' + optionIndex]">
+                            <label :for="'q_' + index + '_o_' + optionIndex">{{ option }}</label>
+                        </div>
+                    </div>
+                    <div class="inputOptions" v-else-if="question.questionType === 'text'">
+                        <input type="text" v-model="doquestArr[question.questionId]">
+                    </div>
+                </div>
+                <button class="previewButton" @click="goToPreviewPage">預覽填寫結果</button>
+                <a href="/questFrontHome"><button class="backToHome" >返回前台列表</button></a>
+            </div>
+        </div>
+        <div class="showPreviewPage" v-if="this.page == 2">
+            <previewdoQuestPage :checkinfo="doquestArr" />
+            <button class="returnButton" type="button" @click="backToQuestPage()">返回修改</button>
+        </div>
+    </div>
+</template>
 
+
+
+
+
+<!-- <template>
+    <div class="doQuestPageBody">
+        <div class="doQuestHeader">
+            <span>{{ searchAllList.hwQuestionnaireList.startTime }}~~{{ searchAllList.hwQuestionnaireList.endTime }}</span>
+            <h6>問卷名稱:{{ searchAllList.hwQuestionnaireList.questionName }}</h6>
+            <h6>問卷描述:{{ searchAllList.hwQuestionnaireList.description }}</h6>
+        </div>
         <div class="backToFix" v-if="this.page == 1">
             <div class="fixedQuest">
                 <div>
-                    <label for="">姓名</label>
-                    <input type="text" v-model="doquestArr.userName">
+                    <label for="name">姓名</label>
+                    <input type="text" id="name" v-model="doquestArr.name">
                 </div>
                 <div>
-                    <label for="">手機</label>
-                    <input type="text" v-model="doquestArr.userPhone">
+                    <label for="phone">手機</label>
+                    <input type="text" id="phone" v-model="doquestArr.phoneNumber">
                 </div>
                 <div>
-                    <label for="">Email</label>
-                    <input type="text" v-model="doquestArr.userEmail">
+                    <label for="email">Email</label>
+                    <input type="text" id="email" v-model="doquestArr.email">
                 </div>
                 <div>
-                    <label for="">年齡</label>
-                    <input type="text" v-model="doquestArr.userAge">
+                    <label for="age">年齡</label>
+                    <input type="text" id="age" v-model="doquestArr.age">
                 </div>
             </div>
 
-            <div class="fluidQuest">
-                <div v-for="(question, questionIndex) in searchAllList.hwQuestionList" :key="questionIndex">
-                    <label>問題 {{ questionIndex + 1 }}: {{ question.questionText }}</label>
 
+            <div class="fluidQuest">
+                <div v-for="(question, index) in searchAllList.hwQuestionList" :key="index">
+                    <label>問題 {{ index + 1 }}: {{ question.questionText }}</label>
+                    <span style="color: red;" v-if="question.necessary == 1">*</span>
                     <div v-if="question.questionType === 'radio'">
                         <div v-for="(option, optionIndex) in question.optionText.split(';')" :key="optionIndex">
-                            <input type="radio" :id="'q_' + questionIndex + '_o_' + optionIndex" :value="option"
-                                v-model="question.userResponse">
-                            <label :for="'q_' + questionIndex + '_o_' + optionIndex">{{ option }}</label>
+                            <input type="radio" :id="'q_' + index + '_o_' + optionIndex" :value="option"
+                                :name="'question_' + index" v-model="doquestArr[question.questionId]">
+                            <label :for="'q_' + index + '_o_' + optionIndex">{{ option }}</label>
                         </div>
                     </div>
 
                     <div v-else-if="question.questionType === 'checkbox'">
                         <div v-for="(option, optionIndex) in question.optionText.split(';')" :key="optionIndex">
-                            <input type="checkbox" :id="'q_' + questionIndex + '_o_' + optionIndex" :value="option"
-                                v-model="question.userResponse">
-                            <label :for="'q_' + questionIndex + '_o_' + optionIndex">{{ option }}</label>
+                            <input type="checkbox" :id="'q_' + index + '_o_' + optionIndex" :value="option"
+                                v-model="doquestArr[question.questionId + '_' + optionIndex]">
+                            <label :for="'q_' + index + '_o_' + optionIndex">{{ option }}</label>
                         </div>
                     </div>
 
                     <div v-else-if="question.questionType === 'text'">
-                        <input type="text" v-model="question.userResponse">
+                        <input type="text" v-model="doquestArr[question.questionId]">
                     </div>
                 </div>
                 <button @click="goToPreviewPage">預覽填寫結果</button>
+
             </div>
         </div>
-
-
-
         <div class="showPreviewPage" v-if="this.page == 2">
             <previewdoQuestPage :checkinfo="doquestArr" />
             <button type="button" @click="backToQuestPage()">返回修改</button>
         </div>
     </div>
-</template>
+</template> -->
 
 <style lang="scss" scoped>
 .doQuestPageBody {
@@ -192,46 +231,117 @@ export default {
         background-color: #fff;
     }
 
-    .fixedQuest {
-        width: 900px;
-        height: auto;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        padding: 10px;
-        margin-bottom: 20px;
-        background-color: #fff;
+    .backToFix {
+        .fixedQuest {
+            width: 900px;
+            height: auto;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #fff;
 
-        div {
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
+            .formField {
+                display: flex;
+                align-items: center;
+                margin: 10px 0;
+
+                label {
+                    width: 100px;
+                    font-weight: bold;
+                }
+
+                input {
+                    flex: 0.95;
+                    border-radius: 5px;
+                }
+            }
         }
 
-        label {
-            width: 100px;
-            font-weight: bold;
-        }
+        .fluidQuest {
+            width: 900px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            background-color: #fff;
 
-        input {
-            flex: 1;
+            .questionSection {
+                .questionContainer {
+                    label {
+                        font-weight: bold;
+                    }
+
+                    .requiredIndicator {
+                        color: red;
+                    }
+                }
+
+                .inputOptions {
+                    input[type="radio"] {
+                        margin-right: 10px;
+                    }
+
+                    input[type="checkbox"] {
+                        margin-right: 10px;
+                    }
+                }
+            }
+
+            .previewButton {
+                margin-top: 20px;
+                padding: 10px;
+                border: none;
+                border-radius: 5px;
+                background-color: #55c57a;
+                color: #fff;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+
+                &:hover {
+                    background-color: #3a9e5f;
+                }
+            }
+
+            .backToHome{
+                margin-left: 600px;
+                margin-top: 20px;
+                padding: 10px;
+                border: none;
+                border-radius: 5px;
+                background-color: #55c57a;
+                color: #fff;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+
+                &:hover {
+                    background-color: #3a9e5f;
+                }
+        }
         }
     }
 
-    .fluidQuest {
-        width: 900px;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        padding: 20px;
-        margin-top: 20px;
-        background-color: #fff;
-    }
+    .showPreviewPage {
+        position: relative;
+        .returnButton {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            margin-top: 20px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #55c57a;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
 
-    label {
-        font-weight: bold;
-    }
+            &:hover {
+                background-color: #3a9e5f;
+            }
+        }
+        
 
-    input[type="radio"] {
-        margin-right: 10px;
     }
 }
 </style>

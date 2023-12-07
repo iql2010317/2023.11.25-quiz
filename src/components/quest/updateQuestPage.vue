@@ -9,21 +9,28 @@ export default {
             questArr: [],
             questionTypes: ["radio", "checkbox", "text"],
             hwQuestionList: [],
-            necessary: ''
+
+
+            searchAllList: {
+                hwQuestionnaireList: [],
+                hwQuestionList: []
+            },
         }
     },
+
+    mounted() {
+        this.search();
+    },
+
     methods: {
         createNewQuest() {
             const newQuestion = {
                 questionType: '',
-                questionText: '',
-                optionText: '',
-                necessary: '', //新增 必填屬性 //db預設值為0 ==不用填 necessary=1為必填(true)
-
-                question: [],  //舊的屬性
-                options: [],   //舊的屬性
+                question: [],
+                options: [],
+                questionText: '', // 添加 questionText 屬性
+                optionText: '', //預計要讓選項全部在這裡  這裡不可為陣列 後端期待資料型態為字串
             };
-
             this.questArr.push(newQuestion);
             this.hwQuestionList.push(newQuestion); //新增位置
         },
@@ -52,134 +59,49 @@ export default {
             this.questArr[questionIndex].optionText = optionTextArray.join(';');
         },
 
-        postToDbNotPublishedYet() {
+        postUpdateDataToDbNotPublishedYet() {
 
-            // 檢查問卷名稱
-            if (
-                this.questionName.trim() === ''
-            ) {
-                alert('問卷名稱、不得為空。');
-                return;
-            }
-            // 檢查描述
-            if (
-                this.description.trim() === ''
-            ) {
-                alert('問卷描述、不得為空。');
-                return;
-            }
+            this.questArr.forEach((quest, questionIndex) => {
+                const optionTextArray = quest.options.map(option => option.text);
+                this.questArr[questionIndex].optionText = optionTextArray.join(';');
+            });
 
-            // 檢查開始時間
-            if (
-                this.startTime.trim() === ''
-            ) {
-                alert('開始時間、不得為空。');
-                return;
-            }
-
-            // 檢查結束時間
-            if (
-                this.endTime.trim() === ''
-            ) {
-                alert('結束時間、不得為空。');
-                return;
-            }
-
-            // 檢查時間
-            const startDateTime = new Date(this.startTime);
-            const endDateTime = new Date(this.endTime);
-
-            if (endDateTime <= startDateTime) {
-                alert('結束時間不能早於或等於開始時間。');
-                return;
-            }
+            console.log("Updated questArr Data:", this.questArr); // 確認更新後的 questArr 資料
 
 
-            // 至少一題且檢查問題文本不為空
-            if (this.questArr.length == 0 || this.questArr.every(question => question.questionText.trim() === '')) {
-                alert('至少要有一題且問題文本不得為空');
-                return;
-            }
+            // ...剩餘的程式碼...
+            // 在這裡將更新後的 questArr 資料複製到 hwQuestionList 中
+            this.hwQuestionList = this.questArr.map((quest, index) => {
+                return {
+                    // 確保這裡的屬性與資料結構與 questArr 中的資料一致
+                    questionId: quest.questionId, // 如果有 questionId 的話，請確保資料中包含此項目
+                    questionnaireId: this.$route.params.updateQuestPageId,
+                    questionType: quest.questionType,
+                    necessary: quest.necessary,
+                    questionText: quest.questionText,
+                    options: quest.options.map(option => {
+                        return {
+                            text: option.text
+                        };
+                    }),
+                    optionText: quest.optionText
+                };
+            });
 
-            // 檢查類型是否存在
-            for (let i = 0; i < this.questArr.length; i++) {
-                const question = this.questArr[i];
-                if (question.questionType.trim() === '') {
-                    alert('給問題一個類型');
-                    return;
-                }
-            }
-
-            for (let i = 0; i < this.questArr.length; i++) {
-                const question = this.questArr[i];
-
-                // 至少要有兩個選項
-                if ((question.questionType === 'radio' || question.questionType === 'checkbox') && question.options.length < 2) {
-                    alert('單選或多選題，至少要有兩個選項');
-                    return;
-                }
-            }
-
-            //問題不得為空
-            for (let i = 0; i < this.questArr.length; i++) {
-                const question = this.questArr[i];
-
-                if (question.questionText.trim() === '') {
-                    alert('問題不得為空');
-                    return;
-                }
-
-                // 選項不得為空
-                if (question.options.length > 0) {
-                    for (let j = 0; j < question.options.length; j++) {
-                        if (question.options[j].text.trim() === '') {
-                            alert('選項不得為空');
-                            return;
-                        }
-                    }
-                }
-            }
-
-            const newQuestionnaire = {
+            console.log("Final hwQuestionList Data:", this.hwQuestionList);
+            var newQuestionnaire = {
                 hwQuestionnaire: {
+                    questionnaireId: this.$route.params.updateQuestPageId,
                     questionName: this.questionName,
                     description: this.description,
                     startTime: this.startTime,
                     endTime: this.endTime,
                     published: 0,
+
                 },
                 hwQuestionList: this.hwQuestionList,
             };
-
-            this.questArr.forEach((quest, questionIndex) => {
-                const optionTextArray = quest.options.map(option => option.text);
-                this.questArr[questionIndex].optionText = optionTextArray.join(';');
-            });
-
             console.log(newQuestionnaire)
-
-            fetch('http://localhost:8080/api/HwQuestionnaire/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(newQuestionnaire)
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log(data);
-                })
-                .catch(error => console.error('Error:', error));
-            alert("成功新增問卷，狀態為未發布(published=0)")
-        },
-
-
-        postToDbAndPublished() {
 
             // 檢查問卷名稱
             if (
@@ -268,25 +190,9 @@ export default {
             }
 
 
-            const newQuestionnaire = {
-                hwQuestionnaire: {
-                    questionName: this.questionName,
-                    description: this.description,
-                    startTime: this.startTime,
-                    endTime: this.endTime,
-                    published: 1,
-                },
-                hwQuestionList: this.hwQuestionList,
-            };
 
-            this.questArr.forEach((quest, questionIndex) => {
-                const optionTextArray = quest.options.map(option => option.text);
-                this.questArr[questionIndex].optionText = optionTextArray.join(';');
-            });
 
-            console.log(newQuestionnaire)
-
-            fetch('http://localhost:8080/api/HwQuestionnaire/create', {
+            fetch('http://localhost:8080/api/HwQuestionnaire/createOrUpdate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -303,23 +209,205 @@ export default {
                     console.log(data);
                 })
                 .catch(error => console.error('Error:', error));
-            alert("成功新增問卷，狀態為已發布(published=1)")
+            alert("更新問卷成功 (尚未發布)")
 
         },
-        getCurrentDate() {
-            const today = new Date();
-            const year = today.getFullYear();
-            let month = today.getMonth() + 1;
-            let day = today.getDate();
 
-            // 将月份和日期格式化为两位数
-            month = month < 10 ? `0${month}` : month;
-            day = day < 10 ? `0${day}` : day;
+        postUpdateDataToDbAndPublished() {
 
-            // 返回 YYYY-MM-DD 格式的当前日期字符串
-            return `${year}-${month}-${day}`;
-        }
+            this.questArr.forEach((quest, questionIndex) => {
+                const optionTextArray = quest.options.map(option => option.text);
+                this.questArr[questionIndex].optionText = optionTextArray.join(';');
+            });
 
+            console.log("Updated questArr Data:", this.questArr); // 確認更新後的 questArr 資料
+
+
+            // ...剩餘的程式碼...
+            // 在這裡將更新後的 questArr 資料複製到 hwQuestionList 中
+            this.hwQuestionList = this.questArr.map((quest, index) => {
+                return {
+                    // 確保這裡的屬性與資料結構與 questArr 中的資料一致
+                    questionId: quest.questionId, // 如果有 questionId 的話，請確保資料中包含此項目
+                    questionnaireId: this.$route.params.updateQuestPageId,
+                    questionType: quest.questionType,
+                    necessary: quest.necessary,
+                    questionText: quest.questionText,
+                    options: quest.options.map(option => {
+                        return {
+                            text: option.text
+                        };
+                    }),
+                    optionText: quest.optionText
+                };
+            });
+
+            console.log("Final hwQuestionList Data:", this.hwQuestionList);
+            var newQuestionnaire = {
+                hwQuestionnaire: {
+                    questionnaireId: this.$route.params.updateQuestPageId,
+                    questionName: this.questionName,
+                    description: this.description,
+                    startTime: this.startTime,
+                    endTime: this.endTime,
+                    published: 1,
+
+                },
+                hwQuestionList: this.hwQuestionList,
+            };
+            console.log(newQuestionnaire)
+
+            // 檢查問卷名稱
+            if (
+                this.questionName.trim() === ''
+            ) {
+                alert('問卷名稱、不得為空。');
+                return;
+            }
+            // 檢查描述
+            if (
+                this.description.trim() === ''
+            ) {
+                alert('問卷描述、不得為空。');
+                return;
+            }
+
+            // 檢查開始時間
+            if (
+                this.startTime.trim() === ''
+            ) {
+                alert('開始時間、不得為空。');
+                return;
+            }
+
+            // 檢查結束時間
+            if (
+                this.endTime.trim() === ''
+            ) {
+                alert('結束時間、不得為空。');
+                return;
+            }
+
+            // 檢查時間
+            const startDateTime = new Date(this.startTime);
+            const endDateTime = new Date(this.endTime);
+
+            if (endDateTime <= startDateTime) {
+                alert('結束時間不能早於或等於開始時間。');
+                return;
+            }
+
+
+            // 至少一題且檢查問題文本不為空
+            if (this.questArr.length == 0 || this.questArr.every(question => question.questionText.trim() === '')) {
+                alert('至少要有一題且問題文本不得為空');
+                return;
+            }
+
+            // 檢查類型是否存在
+            for (let i = 0; i < this.questArr.length; i++) {
+                const question = this.questArr[i];
+                if (question.questionType.trim() === '') {
+                    alert('給問題一個類型');
+                    return;
+                }
+            }
+
+            for (let i = 0; i < this.questArr.length; i++) {
+                const question = this.questArr[i];
+
+                // 至少要有兩個選項
+                if ((question.questionType === 'radio' || question.questionType === 'checkbox') && question.options.length < 2) {
+                    alert('單選或多選題，至少要有兩個選項');
+                    return;
+                }
+            }
+
+            //問題不得為空
+            for (let i = 0; i < this.questArr.length; i++) {
+                const question = this.questArr[i];
+
+                if (question.questionText.trim() === '') {
+                    alert('問題不得為空');
+                    return;
+                }
+
+                // 選項不得為空
+                if (question.options.length > 0) {
+                    for (let j = 0; j < question.options.length; j++) {
+                        if (question.options[j].text.trim() === '') {
+                            alert('選項不得為空');
+                            return;
+                        }
+                    }
+                }
+            }
+
+
+
+            fetch('http://localhost:8080/api/HwQuestionnaire/createOrUpdate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newQuestionnaire)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => console.error('Error:', error));
+            alert("更新問卷成功")
+
+        },
+
+        search() {
+            const questionnaireIdToFind = this.$route.params.updateQuestPageId;
+            console.log("本頁頁碼 " + questionnaireIdToFind);
+
+            fetch('http://localhost:8080/api/HwQuestionnaire/search', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data); //第一次 全部的數據
+
+                    const filteredQuestionnaire = data.hwQuestionnaireList.find(item => item.questionnaireId == questionnaireIdToFind);
+                    if (filteredQuestionnaire) {
+                        this.searchAllList.hwQuestionnaireList = filteredQuestionnaire;
+                        this.searchAllList.hwQuestionList = data.hwQuestionList.filter(item => item.questionnaireId == questionnaireIdToFind);
+                    }
+                    console.log(this.searchAllList); //第二次 利用questionnaireId過濾數據
+
+                    this.questionName = this.searchAllList.hwQuestionnaireList.questionName;
+                    this.description = this.searchAllList.hwQuestionnaireList.description;
+                    this.startTime = this.searchAllList.hwQuestionnaireList.startTime;
+                    this.endTime = this.searchAllList.hwQuestionnaireList.endTime;
+                    this.questArr = this.searchAllList.hwQuestionList ////這有有正確賦予值了
+                    this.searchAllList.hwQuestionList.forEach(quest => {
+                        quest.options = quest.optionText.split(';').map(option => ({ text: option }));
+                    });
+
+
+
+
+
+                })
+                .catch(error => console.error('Error:', error));
+        },
     }
 }
 </script>
@@ -327,26 +415,26 @@ export default {
 <template>
     <div class="createQuestPageBody">
         <div class="createQuestHeader">
-            <h1>新增問卷</h1>
             <div>
+                <h1>更新問卷(only for 未發布)</h1>
                 <label for="">問卷名稱</label>
-                <input style="width: 100%;" type="text" name="" id="" v-model="this.questionName">
+
+                <input style="width: 90%;" type="text" name="" id="" v-model="this.questionName">
             </div>
-            <div class="textbox">
+            <div>
                 <label for="">描述內容</label>
-                <textarea style="width: 100%;" name="" id="" cols="30" rows="10" v-model="this.description"></textarea>
+                <input style="width: 90%;height: 150px;" type="text" name="" id="" v-model="this.description">
             </div>
             <div>
                 <label for="">問卷開始時間</label>
-                <input type="date" name="" id="" v-model="this.startTime" :min="getCurrentDate()">
+                <input type="date" name="" id="" v-model="this.startTime">
                 <label for="">問卷結束時間</label>
-                <input type="date" name="" id="" v-model="this.endTime" :min="getCurrentDate()">
+                <input type="date" name="" id="" v-model="this.endTime">
             </div>
             <div>
                 <button v-on:click="createNewQuest()">新增問題</button>
-                <button v-on:click="postToDbNotPublishedYet()">儲存問卷，暫且不發布</button>
-                <button v-on:click="postToDbAndPublished()">儲存問卷，並且發布</button>
-
+                <button v-on:click="postUpdateDataToDbNotPublishedYet()">儲存問卷，暫且不發布</button>
+                <button v-on:click="postUpdateDataToDbAndPublished()">儲存問卷，並且發布</button>
             </div>
         </div>
 
@@ -360,7 +448,8 @@ export default {
             <button @click="createNewOptions(questionIndex)">新增選項</button>
             <label for="">是否必填</label>
             <input type="checkbox" v-model="quest.necessary">
-            <!-- {{ quest.necessary }} -->
+            {{ quest.necessary }}
+
             <div class="NewOptions" v-for="(option, optionIndex) in quest.options" :key="optionIndex">
                 <input v-if="quest.questionType === 'radio'" type="radio" name="radioGroup"
                     v-model="quest.options[optionIndex].selected">
@@ -397,10 +486,6 @@ export default {
         display: flex;
         flex-direction: column;
         align-items: center;
-
-        .textbox {
-            border-radius: 60px;
-        }
 
         div {
             width: 100%;

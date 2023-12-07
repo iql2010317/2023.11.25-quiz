@@ -16,7 +16,9 @@ export default {
 </script>
 <template>
     <nav class="topNav">
-        <RouterLink to="/questHome">QuestHome</RouterLink>
+        <RouterLink to="/questFrontHome">前台</RouterLink>
+        <RouterLink to="/questHome">後台</RouterLink>
+        <!-- <RouterLink to="/surveyTest1">vue-survey-builder</RouterLink> -->
     </nav>
 
     <!-- <p>{{ this.location }}</p> -->
