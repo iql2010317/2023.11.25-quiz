@@ -11,7 +11,8 @@ export default {
             chartDataList: [],
             labelForAns: [], ////到時候要棄用
             responseData: null,
-            processedUserData: null
+            processedUserData: null,
+            userList: null
         };
     },
 
@@ -85,6 +86,7 @@ export default {
 
                 const data2 = await response2.json();
                 console.log(data2)
+                this.userList = data2.userList
 
                 let answerCounts = {};
 
@@ -195,6 +197,7 @@ export default {
         </div>
 
     </div>
+
 </template>
 
 <style lang="scss" scoped>
@@ -233,4 +236,5 @@ export default {
         }
     }
 }
+
 </style>

@@ -20,8 +20,8 @@ export default {
                 'startTime': 1,
                 'endTime': 1
             },
-            left:'<<',
-            right:'>>',
+            left: '<<',
+            right: '>>',
         };
     },
     mounted() {

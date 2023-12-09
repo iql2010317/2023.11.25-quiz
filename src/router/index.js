@@ -57,6 +57,12 @@ const router = createRouter({
       name: "questHome/showDetailPage",
       component: () => import("../components/quest/showDetailPage.vue"),
     },
+    //動態路由2-1 觀看統計畫面forBE
+    {
+      path: "/questHome/showDetailPageBE/:showDetailPageId",
+      name: "questHome/showDetailPageBE",
+      component: () => import("../components/quest/showDetailPageBE.vue"),
+    },
 
     //動態路由3 更新新增問卷畫面
     {

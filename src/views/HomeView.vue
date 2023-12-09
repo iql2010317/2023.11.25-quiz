@@ -1,150 +1,411 @@
 <script>
+import { RouterLink } from "vue-router";
 export default {
   data() {
     return {
-      panels: [
-        { image: "../../public/27710_0.jpg" },
-        { image: "../../public/27711_0.jpg" },
-        { image: "../../public/bg03.jpg" },
-        { image: "../../public/uyuni-bolivia-cabecera.jpg" },
-        { image: "../../public/09.24.jpg" },
-      ],
-      activePanel: 3,
+      searchAllList: {
+        hwQuestionnaireList: [],
+        hwQuestionList: []
+      },
+      searchText: '',
+      searchStartTime: '',
+      searchEndTime: '',
+      currentPage: 1,// 初始化当前页数为1
+
+      sortKey: '', // 預設的排序欄位
+      sortOrders: {
+        // 每個欄位的排序順序
+        'num': 1,
+        'questionName': 1,
+        'status': 1,
+        'startTime': 1,
+        'endTime': 1
+      },
+      left: '<<',
+      right: '>>',
+
     };
   },
-  methods: {
-    setActive(index) {
-      if (this.activePanel === index) {
-        return;
-      }
-      if (this.activePanel !== null) {
-        this.panels[this.activePanel].active = false;
-      }
-      this.panels[index].active = true;
-      this.activePanel = index;
-    },
+  mounted() {
+    this.searchParam();
+
   },
+  computed: {
+    totalPages() {
+      const pageSize = 10; // 每页显示的数量
+      return Math.ceil(this.searchAllList.hwQuestionnaireList.length / pageSize);
+    }
+  },
+
+  methods: {
+
+    searchParam() {
+      const questionName = this.searchText;
+      const startTime = this.searchStartTime;
+      const endTime = this.searchEndTime;
+
+      const url = new URL('http://localhost:8080/api/HwQuestionnaire/searchParamTime');
+      url.searchParams.append('question_name', questionName);
+      url.searchParams.append('start_Time', startTime);
+      url.searchParams.append('end_Time', endTime);
+
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          const publishedQuestionnaires = data.hwQuestionnaireList.filter(questionnaire => questionnaire.published === true);
+
+          // 對 publishedQuestionnaires 進行倒序排列
+          const reversedPublishedQuestionnaires = publishedQuestionnaires.reverse();
+
+          this.searchAllList.hwQuestionnaireList = reversedPublishedQuestionnaires;
+          console.log(this.searchAllList);
+
+          this.currentPage = 1;
+
+
+        })
+        .catch(error => console.error('Error:', error));
+    },
+
+
+    getPage(pageNum) {
+      const pageSize = 10; // 每页显示的数量
+      const startIndex = (pageNum - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      return this.searchAllList.hwQuestionnaireList.slice(startIndex, endIndex);
+    },
+    getStatus(startTime, endTime) {
+      const now = new Date();
+      const startDate = new Date(startTime);
+      const endDate = new Date(endTime);
+
+      if (now < startDate) {
+        return '尚未開始';
+      } else if (now >= startDate && now <= endDate) {
+        return '進行中';
+      } else {
+        return '已結束';
+      }
+    },
+    isLinkEnabled(startTime, endTime) {
+      const now = new Date();
+      const startDate = new Date(startTime);
+      const endDate = new Date(endTime);
+      const status = this.getStatus(startTime, endTime);
+
+      if (status === '尚未開始' || (status === '已結束' && now < endDate)) {
+        return false;
+      } else {
+        return true;
+      }
+    },
+    isLinkEnabledForDoPage(startTime, endTime) {
+      const now = new Date();
+      const startDate = new Date(startTime);
+      const endDate = new Date(endTime);
+      const status = this.getStatus(startTime, endTime);
+
+      if (status === '尚未開始' || status === '已結束') {
+        return false;
+      }
+      else {
+        return true;
+      }
+    },
+
+    sortBy(key) {
+      this.sortKey = key;
+      this.sortOrders[key] = this.sortOrders[key] * -1;
+      // 根據點擊的欄位進行排序
+      this.searchAllList.hwQuestionnaireList.sort((a, b) => {
+        return this.sortOrders[key] * (a[key] > b[key] ? 1 : -1);
+      });
+    },
+    getStatusColor(startTime, endTime) {
+      const status = this.getStatus(startTime, endTime);
+
+      if (status === '尚未開始') {
+        return 'orange'; // 设置尚未开始状态的文字颜色为橙色
+      } else if (status === '進行中') {
+        return 'green'; // 设置进行中状态的文字颜色为绿色
+      } else if (status === '已結束') {
+        return 'red'; // 设置已结束状态的文字颜色为红色
+      } else {
+        return 'black'; // 默认颜色为黑色
+      }
+    },
+    // 上一页逻辑
+    goToPreviousPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+      }
+    },
+    // 下一页逻辑
+    goToNextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+      }
+    },
+
+  }
 };
 </script>
 
 <template>
-</template>
+    <div class="questHomeBody">
+      <div class="searchList">
+        <div class="searchListTop">
+          <label>問卷標題</label>
+          <input type="search" style="padding-left: 10px;" v-model="searchText" placeholder="請輸入搜尋標題">
+        </div>
+        <div class="searchListDown">
+          <label for="startDate">開始日期：</label>
+          <input class="searchStartTime" type="date" v-model="searchStartTime">
+          <label for="endDate">結束日期：</label>
+          <input class="searchEndTime" type="date" v-model="searchEndTime">
+          <button class="searchButton" v-on:click="searchParam()">搜尋</button>
+        </div>
+      </div>
+      <div class="showList">
+        <table>
+          <thead>
+            <tr>
+              <th @click="sortBy('num')">＃</th>
+              <th @click="sortBy('questionName')">問卷標題</th>
+              <th @click="sortBy('status')">狀態</th>
+              <th @click="sortBy('startTime')">開始時間</th>
+              <th @click="sortBy('endTime')">結束時間</th>
+              <th>觀看統計</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(quest, index) in getPage(currentPage)" :key="index">
+              <td>{{ quest.questionnaireId }}</td>
 
+              <td>
+                <router-link v-if="isLinkEnabledForDoPage(quest.startTime, quest.endTime)"
+                  :to="'/questHome/doQuestPage/' + quest.questionnaireId" class="router-link-custom">
+                  {{ quest.questionName }}
+                </router-link>
+                <span v-else>{{ quest.questionName }}</span>
+              </td>
 
-<!-- 
+              <td>
+                <span :style="{ color: getStatusColor(quest.startTime, quest.endTime) }">
+                  {{ getStatus(quest.startTime, quest.endTime) }}
+                </span>
+              </td>
 
+              <td>{{ quest.startTime }}</td>
+              <td>{{ quest.endTime }}</td>
 
-<style>
-</style>
-
-<template>
-  <h1 style="font-family: fantasy; text-align: center; margin: 30px 0">About Me</h1>
-
-  <div class="c1">
-    <div class="c1Left">
-      <ul>
-        <li>姓　　名：鐘玉翔</li>
-        <li>學　　校：台灣科技大學</li>
-        <li>科　　系：化學工程系</li>
-        <li>日文能力：JLPT N1</li>
-        <li>工作經歷：光洋科　　品管　2022/03~2023/09</li>
-        <li>　　　　　佳勝科技　助工　2021/02~2022/03</li>
-        <li>　　　　　三岳化成　品保　2019/02~2021/02</li>
-        <li>　　　　　同泰電子　助工　2018/02~2019/02</li>
-        <audio class="test" src="../../public/paiClip.mp3" controls></audio>
-      </ul>
-      <div class="toutei">
-        <img class="font" style="object-fit: cover;
-            border-radius: 5px; object-position: 50% 50%; width: 150px; height: 180px;" src="../../public/pro001.jpg"
-          alt="">
+              <td>
+                <router-link v-if="isLinkEnabled(quest.startTime, quest.endTime)"
+                  :to="'/questHome/showDetailPage/' + quest.questionnaireId" class="router-link-custom">
+                  觀看統計
+                </router-link>
+                <span v-else>觀看統計</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="showPages">
+        <button class="pageButton" @click="goToPreviousPage" :disabled="currentPage === 1">{{ this.left }}</button>
+        <button v-for="page in totalPages" :key="page" @click="currentPage = page" class="pageButton">
+          {{ page }}
+        </button>
+        <button class="pageButton" @click="goToNextPage" :disabled="currentPage === totalPages">{{ this.right
+        }}</button>
       </div>
     </div>
-    <div class="c1Right">
-      <div v-for="(panel, index) in panels" style="object-fit: cover;
-            object-position: 50% 50%;" :key="index" class="panel" @click="setActive(index)"
-        :style="{ backgroundImage: `url(${panel.image})` }" :class="{ active: activePanel === index }"></div>
-    </div>
-  </div>
-  <div class="br"></div>
-</template> -->
+</template>
 
-<!-- <style lang="scss" scoped>
-.c1 {
-  width: 100vw;
-  display: flex;
+<style lang="scss" scoped>
 
-  .c1Left {
-    margin-left: 50px;
-    width: 600px;
-    position: relative;
-
-    // border: 1px solid;
-    .test {
-      position: absolute;
-      top: 0;
-      right: -80px;
-      z-index: 2;
-      opacity: 0;
-    }
-
-    .toutei {
-      width: 150px;
-      height: 180px;
-      position: absolute;
-      top: 0;
-      left: 340px;
-    }
-
-    li {
-      font-size: 16pt;
-      margin-bottom: 15px;
-    }
-  }
-
-  .c1Right {
-    width: 850px;
-    height: 400px;
-    // border: 1px solid;
+  .questHomeBody {
     display: flex;
-
-    .panel {
-      width: 800px;
-      height: 400px;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      border-radius: 50px;
-      margin-right: 15px;
-      cursor: pointer;
-      flex: 0.5;
-      position: relative;
-      transition: flex 0.6s ease-in;
-
-      &.active {
-        flex: 5;
-      }
-    }
-  }
-}
-
-@media (max-width: 1500px) {
-  .c1 {
     flex-direction: column;
     align-items: center;
+    background-color: #f0f0f0;
+    // padding: 20px;
 
-    .c1Left {
-      // background-color: #782b2b;
-      // width: 1700px; //沒吃到設定
-      margin-bottom: 50px;
+    .searchList {
+      margin-top: 15px;
+      background-color: #BBFFD8;
+      width: 900px;
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 10px;
+
+      .searchListTop {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+
+        label {
+          margin-right: 10px;
+        }
+
+        input[type="search"] {
+          padding: 5px;
+          border-radius: 5px;
+          border: 1px solid #ccc;
+        }
+      }
+
+      .searchListDown {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        label {
+          margin-right: 10px;
+        }
+
+        input[type="date"] {
+          padding: 5px;
+          border-radius: 5px;
+          border: 1px solid #ccc;
+        }
+
+        .searchButton {
+          padding: 5px 10px;
+          background-color: #55c57a;
+          border: 1px solid #3a9e5f;
+          border-radius: 5px;
+          cursor: pointer;
+          color: white;
+        }
+
+        .searchButton:hover {
+          background-color: #3a9e5f;
+        }
+
+        button {
+          padding: 5px 10px;
+          background-color: #fff;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          cursor: pointer;
+
+          a {
+            text-decoration: none;
+            color: black;
+            transition: text-decoration-color 0.3s;
+            border-bottom: 1px solid transparent;
+          }
+
+          a:hover {
+            text-decoration-color: #55c57a;
+            border-bottom: 1px solid #55c57a;
+          }
+        }
+
+        button:hover {
+          background-color: #ccc;
+        }
+      }
+    }
+
+    .showList {
+      margin-top: 15px;
+      width: 900px;
+      height: 495px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      overflow: auto;
+      background-color: #fff;
+
+      .router-link-custom {
+        text-decoration: none;
+        color: blue;
+        transition: text-decoration-color 0.3s;
+        border-bottom: 1px solid transparent;
+
+        &:hover {
+          text-decoration-color: blue;
+          border-bottom: 1px solid blue;
+        }
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        border-spacing: 0;
+      }
+
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: center;
+      }
+
+      th {
+        background-color: #BAE8CA;
+        color: black;
+      }
+
+      tr:nth-child(even) {
+        background-color: #BBFFD8;
+      }
+    }
+
+    .showPages {
+      display: flex;
+      justify-content: center;
+      margin-top: 15px;
+      gap: 10px;
+    }
+
+    .pageButton {
+      padding: 5px 10px;
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #ccc;
+      }
+    }
+
+    .pageButton:hover {
+      background-color: #ccc;
+    }
+  }
+
+
+@media screen and (max-width: 1250px) {
+  .questHomeBody {
+    .searchList,
+    .showList {
+      width: 600px;
+    }
+  }
+  .questHomeBody {
+    .showList table th:nth-child(4),
+    .showList table td:nth-child(4),
+    .showList table th:nth-child(5),
+    .showList table td:nth-child(5) {
+      display: none;
     }
   }
 }
 
-.br {
-  margin-left: 4vw;
-  margin-top: 6vh;
-  width: 90vw;
-  height: 3px;
-  background-color: black;
-}
-</style> -->
+
+
+</style>

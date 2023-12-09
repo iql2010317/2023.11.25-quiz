@@ -138,7 +138,7 @@ export default {
                     </div>
                 </div>
                 <button class="previewButton" @click="goToPreviewPage">預覽填寫結果</button>
-                <a href="/questFrontHome"><button class="backToHome" >返回前台列表</button></a>
+                <a href="/"><button class="backToHome" >返回前台列表</button></a>
             </div>
         </div>
         <div class="showPreviewPage" v-if="this.page == 2">

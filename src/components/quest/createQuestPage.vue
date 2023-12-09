@@ -346,7 +346,7 @@ export default {
                 <button v-on:click="createNewQuest()">新增問題</button>
                 <button v-on:click="postToDbNotPublishedYet()">儲存問卷，暫且不發布</button>
                 <button v-on:click="postToDbAndPublished()">儲存問卷，並且發布</button>
-
+                <a href="/questHome"><button class="backToHome" >返回後台列表</button></a>
             </div>
         </div>
 
@@ -438,6 +438,22 @@ export default {
 
         button+button {
             margin-left: 10px;
+        }
+
+        .backToHome{
+                margin-left: 190px;
+                margin-top: 20px;
+                padding: 10px;
+                border: none;
+                border-radius: 5px;
+                background-color: #55c57a;
+                color: #fff;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+
+                &:hover {
+                    background-color: #3a9e5f;
+                }
         }
     }
 

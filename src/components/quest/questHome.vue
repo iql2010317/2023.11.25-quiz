@@ -13,10 +13,12 @@ export default {
             selectedQuestionnaires: [],
             left: '<<',
             right: '>>',
+
         };
     },
     mounted() {
         this.searchParam();
+
     },
     computed: {
         totalPages() {
@@ -136,6 +138,7 @@ export default {
                 this.currentPage++;
             }
         },
+
     }
 };
 </script>
@@ -144,8 +147,8 @@ export default {
     <div class="questHomeBody">
         <div class="searchList">
             <div class="searchListTop">
-                <label>問卷標題(這裡是後台)</label>
-                <input type="search" v-model="searchText">
+                <label>問卷標題</label>
+                <input type="search" style="padding-left: 10px;" v-model="searchText" placeholder="請輸入搜尋標題">
             </div>
             <div class="searchListDown">
                 <label for="startDate">開始日期：</label>
@@ -156,7 +159,7 @@ export default {
                 <button class="searchButton" v-on:click="searchParam()">搜尋</button>
                 <button><a href="/questHome/createQuestPage">新增問卷</a></button>
                 <a href="/questHome"><button class="searchButton" v-on:click="deleteQuestionnaireList()">刪除問卷</button></a>
-                
+
             </div>
         </div>
         <div class="showList">
@@ -213,7 +216,8 @@ export default {
 
                         <td>{{ quest.startTime }}</td>
                         <td>{{ quest.endTime }}</td>
-                        <td><router-link :to="'/questHome/showDetailPage/' + quest.questionnaireId">觀看統計</router-link></td>
+                        <td><router-link :to="'/questHome/showDetailPageBE/' + quest.questionnaireId">觀看統計</router-link>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -388,6 +392,30 @@ export default {
 
     .pageButton:hover {
         background-color: #ccc;
+    }
+}
+
+@media screen and (max-width: 1250px) {
+    .questHomeBody {
+
+        .searchList,
+        .showList {
+            width: 600px;
+        }
+    }
+
+    .questHomeBody {
+
+        .showList table th:nth-child(5),
+        .showList table td:nth-child(5),
+        .showList table th:nth-child(6),
+        .showList table td:nth-child(6) {
+            display: none;
+        }
+
+        .searchListDown label{
+            display: none;
+        }
     }
 }
 </style>
