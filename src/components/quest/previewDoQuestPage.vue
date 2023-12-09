@@ -16,6 +16,7 @@ export default {
     },
     methods: {
 
+
         userCreate() {
             this.processSelectedOptions();
             const userResponse = {
@@ -29,9 +30,7 @@ export default {
                     ans: this.hi
                 },
             };
-
-
-
+            console.log(userResponse)
 
 
             fetch('http://localhost:8080/api/user/create', {
@@ -56,7 +55,15 @@ export default {
 
         //分類 並且成功取得相應的index
         processSelectedOptions() {
+            console.log(this.checkinfo)
             const selectedOptions = [];
+
+            // 將值為 null 或 undefined 的鍵轉換為 '未填寫'
+            for (const key in this.checkinfo) {
+                if (!this.checkinfo[key] && this.checkinfo[key] !== 0) {
+                    this.checkinfo[key] = '未填寫';
+                }
+            }
 
             for (const key in this.checkinfo) {
                 if (this.checkinfo[key]) {
@@ -69,6 +76,7 @@ export default {
                         optionValue: this.checkinfo[key],
                         optionTextSplit: optionText ? optionText.split(';') : []
                     });
+                    console.log(this.checkinfo[key])
                 }
             }
 
@@ -95,7 +103,10 @@ export default {
                 options.sort((a, b) => a.optionIndex - b.optionIndex);
 
                 const answers = options.map(option => {
-                    if (isNaN(option.optionIndex)) {
+                    if (option.optionValue === null || option.optionValue === undefined
+                        || option.optionValue == '') {
+                        return '未填寫';
+                    } else if (isNaN(option.optionIndex)) {
                         return option.optionValue;
                     } else {
                         return option.optionTextSplit[option.optionIndex];
@@ -183,12 +194,13 @@ export default {
                 </div>
             </div>
             <div v-else-if="question.questionType === 'text'">
-                <input type="text" disabled="disabled" v-model="checkinfo[question.questionId]">
+                <input type="text" disabled="disabled" v-model="checkinfo[question.questionId]" :id="'q_' + index">
             </div>
         </div>
 
         <div class="makebody"></div>
         <a href="/questFrontHome"><button class="makesure" @click="userCreate()">確認送出</button></a>
+        <!-- <button class="makesure" @click="userCreate()">確認送出</button> -->
     </div>
 </template>
 
@@ -228,7 +240,7 @@ export default {
     background-color: #fff;
     position: relative;
 
-    
+
     .makesure {
         position: absolute;
         right: 20px;
@@ -243,8 +255,8 @@ export default {
         transition: background-color 0.3s ease;
 
         &:hover {
-                    background-color: #cf421b; ////
-                }
+            background-color: #cf421b; ////
+        }
     }
 }
 </style>

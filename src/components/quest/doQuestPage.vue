@@ -50,6 +50,18 @@ export default {
             // 檢查是否有必填未填寫
             const requiredQuestions = this.searchAllList.hwQuestionList.filter(question => question.necessary);
 
+            // 检查非必填的文本类型问题
+            const nonRequiredTextQuestions = this.searchAllList.hwQuestionList.filter(question => {
+                return question.questionType === 'text' && !question.necessary;
+            });
+
+            nonRequiredTextQuestions.forEach(question => {
+                if (!this.doquestArr[question.questionId] || this.doquestArr[question.questionId].trim() === '') {
+                    this.doquestArr[question.questionId] = '未填寫';
+                }
+            });
+
+
             // 遍歷必填問題，檢查是否至少有一個選項被選中
             const unfilledRequiredQuestions = requiredQuestions.filter(question => {
                 if (question.questionType === 'text') {
@@ -134,11 +146,11 @@ export default {
                         </div>
                     </div>
                     <div class="inputOptions" v-else-if="question.questionType === 'text'">
-                        <input type="text" v-model="doquestArr[question.questionId]">
+                        <input type="text" v-model="doquestArr[question.questionId]" :id="'q_' + index">
                     </div>
                 </div>
                 <button class="previewButton" @click="goToPreviewPage">預覽填寫結果</button>
-                <a href="/"><button class="backToHome" >返回前台列表</button></a>
+                <a href="/"><button class="backToHome">返回前台列表</button></a>
             </div>
         </div>
         <div class="showPreviewPage" v-if="this.page == 2">
@@ -303,7 +315,7 @@ export default {
                 }
             }
 
-            .backToHome{
+            .backToHome {
                 margin-left: 600px;
                 margin-top: 20px;
                 padding: 10px;
@@ -317,12 +329,13 @@ export default {
                 &:hover {
                     background-color: #3a9e5f;
                 }
-        }
+            }
         }
     }
 
     .showPreviewPage {
         position: relative;
+
         .returnButton {
             position: absolute;
             bottom: 20px;
@@ -340,7 +353,7 @@ export default {
                 background-color: #3a9e5f;
             }
         }
-        
+
 
     }
 }

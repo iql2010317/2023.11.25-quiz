@@ -9,7 +9,6 @@ export default {
                 hwQuestionList: []
             },
             chartDataList: [],
-            labelForAns: [], ////到時候要棄用
             responseData: null,
             processedUserData: null,
             userList: null,
@@ -26,7 +25,6 @@ export default {
                 startIndex: 0,
                 endIndex: 3 // itemsPerPage - 1
             },
-
         };
     },
 
@@ -49,6 +47,13 @@ export default {
             return this.userListR.slice(start, end);
         },
 
+        displayedAnswers() {
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            return this.processedData.slice(start, end);
+        },
+
+
         totalPages() {
             return Math.ceil(this.userListR.length / this.itemsPerPage);
         }
@@ -58,11 +63,11 @@ export default {
     methods: {
         changePage(pageNumber) {
             this.currentPage = pageNumber;
-            this.pagination.startIndex = (pageNumber - 1) * this.itemsPerPage;
-            this.pagination.endIndex = pageNumber * this.itemsPerPage - 1;
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = this.currentPage * this.itemsPerPage;
         },
 
-        /////
+        /////12.09舊的
         showUserAnswers(index) {
             if (index >= 0 && index < this.userListR.length) {
                 const displayedIndex = index - (this.currentPage - 1) * this.itemsPerPage;
@@ -71,6 +76,11 @@ export default {
                     this.showEachUserAnswerReview = true;
                 }
             }
+        },
+
+        getReversedIndex(index) {
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            return this.userListR.length - (start + index);
         },
 
 
@@ -262,9 +272,8 @@ export default {
                     return { answers: groupedAnswers };
                 });
 
-                console.log(processedData);
-                this.processedData = processedData
-
+                this.processedData = processedData.reverse();
+                console.log(this.processedData);
 
 
 
@@ -315,8 +324,8 @@ export default {
                     </thead>
                     <tbody>
                         <tr v-for="(user, index) in displayedUsers" :key="user.numId">
-                            <td>{{ displayedUsers.length - index }}</td>
-                            <td>{{ user.name }}</td>
+                            <td>{{ getReversedIndex(index) }}</td>
+                            <td>{{ user.name ? user.name : '未填寫' }}</td>
                             <td>{{ formatDateTime(user.dateTime) }}</td>
                             <td>
                                 <!-- 通过索引（index）和当前页码（currentPage）来计算正确的位置 -->
@@ -346,19 +355,25 @@ export default {
                 <tbody>
                     <tr>
                         <td>姓名：</td>
-                        <td>{{ displayedUsers[selectedUserIndex].name }}</td>
+                        <td>{{ displayedUsers[selectedUserIndex].name ? displayedUsers[selectedUserIndex].name : '未填寫' }}
+                        </td>
                         <td>年齡：</td>
-                        <td>{{ displayedUsers[selectedUserIndex].age }}</td>
+                        <td>{{ displayedUsers[selectedUserIndex].age !== 0 ? displayedUsers[selectedUserIndex].age : '未填寫'
+                        }}</td>
                     </tr>
                     <tr>
                         <td>電話：</td>
-                        <td>{{ displayedUsers[selectedUserIndex].phoneNumber }}</td>
+                        <td>{{ displayedUsers[selectedUserIndex].phoneNumber ? displayedUsers[selectedUserIndex].phoneNumber
+                            : '未填寫' }}</td>
                         <td>信箱：</td>
-                        <td>{{ displayedUsers[selectedUserIndex].email }}</td>
+                        <td>{{ displayedUsers[selectedUserIndex].email ? displayedUsers[selectedUserIndex].email : '未填寫' }}
+                        </td>
                     </tr>
                 </tbody>
             </table>
 
+
+            <!--這裡-->
             <div class="LeftRight">
                 <table class="qListTable">
                     <thead>
@@ -380,9 +395,9 @@ export default {
                         </tr>
                     </thead>
                     <tbody v-if="selectedUserIndex !== null">
-                        <tr v-for="(answer, index) in processedData[selectedUserIndex].answers" :key="'answer_' + index">
+                        <tr v-for="(answer, index) in displayedAnswers[selectedUserIndex].answers" :key="'answer_' + index">
                             <td>
-                                Question {{ answer.question }}: {{ answer.response }}
+                                {{ answer.response ? answer.response : '未填寫' }}
                             </td>
                         </tr>
                     </tbody>
@@ -557,4 +572,26 @@ button {
 button:hover {
     background-color: #45a049;
 }
-</style>
+
+@media screen and (max-width: 1250px) {
+
+    .detailBody {
+        .showDetailPageHeader {
+            width: 600px;
+        }
+
+        .userListBody {
+            width: 600px;
+            height: 400px;
+
+            .usertable {
+                width: 600px;
+                height: 338px;
+
+                table {
+                    width: 100%;
+                }
+            }
+        }
+    }
+}</style>
