@@ -163,16 +163,54 @@ export default {
 
 <template>
     <div class="personalDetail">
-        <h1>本次填寫問卷確認頁面</h1>
-        <p>姓名{{ checkinfo.name }}</p>
+        <h6 style="text-align: center; font-size: 28pt;">問卷確認頁面</h6>
+
+        <table class="userInfoTable">
+                    <tbody>
+                        <tr>
+                            <td>姓名：</td>
+                            <td><input disabled="disabled" type="text" id="name" v-model="checkinfo.name"></td>
+                            <td>年齡：</td>
+                            <td><input disabled="disabled" type="text" id="age" v-model="checkinfo.age"></td>
+                        </tr>
+                        <tr>
+                            <td>電話：</td>
+                            <td><input disabled="disabled" type="text" id="phone" v-model="checkinfo.phoneNumber"></td>
+                            <td>信箱：</td>
+                            <td><input disabled="disabled" type="text" id="email" v-model="checkinfo.email"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+        <!-- <table class="userInfoTable">
+            <tbody>
+                <tr>
+                    <td>姓名：</td>
+                    <td>
+                        {{ checkinfo.name }}
+                    </td>
+                    <td>年齡：</td>
+                    <td>{{ checkinfo.age }}</td>
+                </tr>
+                <tr>
+                    <td>電話：</td>
+                    <td>{{ checkinfo.phoneNumber }}</td>
+                    <td>信箱：</td>
+                    <td>{{ checkinfo.email }}</td>
+                </tr>
+            </tbody>
+        </table> -->
+
+        <!-- <p>姓名{{ checkinfo.name }}</p>
         <p>手機{{ checkinfo.phoneNumber }}</p>
         <p>Email{{ checkinfo.email }}</p>
-        <p>年齡{{ checkinfo.age }}</p>
+        <p>年齡{{ checkinfo.age }}</p> -->
 
     </div>
     <div class="previewArea">
 
-        <h2>填寫問卷預覽</h2>
+        <h6 style="text-align: center; font-size: 28pt;">問卷填寫預覽</h6>
 
         <div v-for="(question, index) in searchAllList.hwQuestionList" :key="index">
 
@@ -199,7 +237,7 @@ export default {
         </div>
 
         <div class="makebody"></div>
-        <a href="/questFrontHome"><button class="makesure" @click="userCreate()">確認送出</button></a>
+        <a href="/"><button class="makesure" @click="userCreate()">確認送出</button></a>
         <!-- <button class="makesure" @click="userCreate()">確認送出</button> -->
     </div>
 </template>
@@ -213,6 +251,27 @@ export default {
     padding: 10px;
     margin-bottom: 20px;
     background-color: #fff;
+
+    .userInfoTable {
+        display: flex;
+        flex-direction: column;
+        // align-items: center;
+        // width: 90%;
+
+        td {
+            // width: 25%;
+            /* 四個欄位均分寬度 */
+            text-align: left;
+            padding: 8px;
+            // border: 1px solid #ccc;
+        }
+
+        input {
+            flex: 0.95;
+            border-radius: 5px;
+        }
+    }
+
 
     div {
         display: flex;
@@ -258,5 +317,65 @@ export default {
             background-color: #cf421b; ////
         }
     }
+}
+
+@media screen and (max-width: 1250px) {
+
+    .personalDetail {
+        width: 600px;
+        height: auto;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 20px;
+        background-color: #fff;
+
+        div {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        label {
+            width: 100px;
+            font-weight: bold;
+        }
+
+        input {
+            flex: 1;
+        }
+    }
+
+    .previewArea {
+        width: 600px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        // padding: 20px;
+        padding: 20px 20px 100px 20px;
+        margin-top: 20px;
+        background-color: #fff;
+        position: relative;
+
+
+        .makesure {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            margin-top: 20px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ff6a00; ////
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+
+            &:hover {
+                background-color: #cf421b; ////
+            }
+        }
+    }
+
+
 }
 </style>

@@ -102,13 +102,31 @@ export default {
 <template>
     <div class="doQuestPageBody">
         <div class="doQuestHeader">
-            <span>{{ searchAllList.hwQuestionnaireList.startTime }}~~{{ searchAllList.hwQuestionnaireList.endTime }}</span>
-            <h6>問卷名稱:{{ searchAllList.hwQuestionnaireList.questionName }}</h6>
+            <span>{{ searchAllList.hwQuestionnaireList.startTime }}~~{{
+                searchAllList.hwQuestionnaireList.endTime }}</span>
+            <h6 style="text-align: center; font-size: 28pt;">問卷名稱:{{ searchAllList.hwQuestionnaireList.questionName }}</h6>
             <h6>問卷描述:{{ searchAllList.hwQuestionnaireList.description }}</h6>
         </div>
         <div class="backToFix" v-if="this.page == 1">
             <div class="fixedQuest">
-                <div class="formField">
+                <table class="userInfoTable">
+                    <tbody>
+                        <tr>
+                            <td>姓名：</td>
+                            <td><input type="text" id="name" v-model="doquestArr.name"></td>
+                            <td>年齡：</td>
+                            <td><input type="text" id="age" v-model="doquestArr.age"></td>
+                        </tr>
+                        <tr>
+                            <td>電話：</td>
+                            <td><input type="text" id="phone" v-model="doquestArr.phoneNumber"></td>
+                            <td>信箱：</td>
+                            <td><input type="text" id="email" v-model="doquestArr.email"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- <div class="formField">
                     <label for="name">姓名</label>
                     <input type="text" id="name" v-model="doquestArr.name">
                 </div>
@@ -123,7 +141,7 @@ export default {
                 <div class="formField">
                     <label for="age">年齡</label>
                     <input type="text" id="age" v-model="doquestArr.age">
-                </div>
+                </div> -->
             </div>
             <div class="fluidQuest">
                 <div class="questionSection" v-for="(question, index) in searchAllList.hwQuestionList" :key="index">
@@ -161,74 +179,9 @@ export default {
 </template>
 
 
-
-
-
-<!-- <template>
-    <div class="doQuestPageBody">
-        <div class="doQuestHeader">
-            <span>{{ searchAllList.hwQuestionnaireList.startTime }}~~{{ searchAllList.hwQuestionnaireList.endTime }}</span>
-            <h6>問卷名稱:{{ searchAllList.hwQuestionnaireList.questionName }}</h6>
-            <h6>問卷描述:{{ searchAllList.hwQuestionnaireList.description }}</h6>
-        </div>
-        <div class="backToFix" v-if="this.page == 1">
-            <div class="fixedQuest">
-                <div>
-                    <label for="name">姓名</label>
-                    <input type="text" id="name" v-model="doquestArr.name">
-                </div>
-                <div>
-                    <label for="phone">手機</label>
-                    <input type="text" id="phone" v-model="doquestArr.phoneNumber">
-                </div>
-                <div>
-                    <label for="email">Email</label>
-                    <input type="text" id="email" v-model="doquestArr.email">
-                </div>
-                <div>
-                    <label for="age">年齡</label>
-                    <input type="text" id="age" v-model="doquestArr.age">
-                </div>
-            </div>
-
-
-            <div class="fluidQuest">
-                <div v-for="(question, index) in searchAllList.hwQuestionList" :key="index">
-                    <label>問題 {{ index + 1 }}: {{ question.questionText }}</label>
-                    <span style="color: red;" v-if="question.necessary == 1">*</span>
-                    <div v-if="question.questionType === 'radio'">
-                        <div v-for="(option, optionIndex) in question.optionText.split(';')" :key="optionIndex">
-                            <input type="radio" :id="'q_' + index + '_o_' + optionIndex" :value="option"
-                                :name="'question_' + index" v-model="doquestArr[question.questionId]">
-                            <label :for="'q_' + index + '_o_' + optionIndex">{{ option }}</label>
-                        </div>
-                    </div>
-
-                    <div v-else-if="question.questionType === 'checkbox'">
-                        <div v-for="(option, optionIndex) in question.optionText.split(';')" :key="optionIndex">
-                            <input type="checkbox" :id="'q_' + index + '_o_' + optionIndex" :value="option"
-                                v-model="doquestArr[question.questionId + '_' + optionIndex]">
-                            <label :for="'q_' + index + '_o_' + optionIndex">{{ option }}</label>
-                        </div>
-                    </div>
-
-                    <div v-else-if="question.questionType === 'text'">
-                        <input type="text" v-model="doquestArr[question.questionId]">
-                    </div>
-                </div>
-                <button @click="goToPreviewPage">預覽填寫結果</button>
-
-            </div>
-        </div>
-        <div class="showPreviewPage" v-if="this.page == 2">
-            <previewdoQuestPage :checkinfo="doquestArr" />
-            <button type="button" @click="backToQuestPage()">返回修改</button>
-        </div>
-    </div>
-</template> -->
-
 <style lang="scss" scoped>
 .doQuestPageBody {
+    margin-top: 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -237,10 +190,14 @@ export default {
     .doQuestHeader {
         width: 900px;
         border: 1px solid #ccc;
-        padding: 10px;
+        padding: 20px;
         border-radius: 10px;
         margin-bottom: 20px;
         background-color: #fff;
+
+        span{
+                margin-left: 650px;
+            }
     }
 
     .backToFix {
@@ -252,6 +209,26 @@ export default {
             padding: 10px;
             margin-bottom: 20px;
             background-color: #fff;
+
+            .userInfoTable {
+                display: flex;
+                flex-direction: column;
+                // align-items: center;
+                // width: 90%;
+
+                td {
+                    // width: 25%;
+                    /* 四個欄位均分寬度 */
+                    text-align: left;
+                    padding: 8px;
+                    // border: 1px solid #ccc;
+                }
+
+                input {
+                    flex: 0.95;
+                    border-radius: 5px;
+                }
+            }
 
             .formField {
                 display: flex;
@@ -279,6 +256,8 @@ export default {
             background-color: #fff;
 
             .questionSection {
+                width: 900px;
+
                 .questionContainer {
                     label {
                         font-weight: bold;
@@ -290,12 +269,22 @@ export default {
                 }
 
                 .inputOptions {
+
                     input[type="radio"] {
                         margin-right: 10px;
                     }
 
                     input[type="checkbox"] {
                         margin-right: 10px;
+                    }
+
+                    input[type="text"] {
+                        width: 450px;
+                        height: 150px;
+                        border-radius: 5px;
+                        padding-bottom: 110px;
+                        padding-left: 5px;
+
                     }
                 }
             }
@@ -355,6 +344,137 @@ export default {
         }
 
 
+    }
+}
+
+@media screen and (max-width: 1250px) {
+
+    .doQuestPageBody {
+
+        .doQuestHeader {
+            width: 600px;
+            span{
+                margin-left: 350px;
+            }
+        }
+
+        .backToFix {
+            .fixedQuest {
+                width: 600px;
+
+                .userInfoTable {
+                    // width: 90%;
+
+                    td {
+                        // width: 25%;
+                        /* 四個欄位均分寬度 */
+                        text-align: left;
+                        padding: 8px;
+                        // border: 1px solid #ccc;
+                    }
+
+                    input {
+                        flex: 0.95;
+                        border-radius: 5px;
+                    }
+                }
+
+                .formField {
+                    display: flex;
+                    align-items: center;
+                    margin: 10px 0;
+
+                    label {
+                        width: 100px;
+                        font-weight: bold;
+                    }
+
+                    input {
+                        flex: 0.95;
+                        border-radius: 5px;
+                    }
+                }
+            }
+
+            .fluidQuest {
+                width: 600px;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+                padding: 20px;
+                margin-top: 20px;
+                background-color: #fff;
+
+                .questionSection {
+                    width: 600px;
+
+                    .inputOptions {
+
+                        input[type="text"] {
+                            width: 300px;
+                            height: 100px;
+                            padding-bottom: 60px;
+                            padding-left: 5px;
+
+                        }
+                    }
+                }
+
+                .previewButton {
+                    margin-top: 20px;
+                    padding: 10px;
+                    border: none;
+                    border-radius: 5px;
+                    background-color: #55c57a;
+                    color: #fff;
+                    cursor: pointer;
+                    transition: background-color 0.3s ease;
+
+                    &:hover {
+                        background-color: #3a9e5f;
+                    }
+                }
+
+                .backToHome {
+                    margin-left: 315px;
+                    margin-top: 20px;
+                    padding: 10px;
+                    border: none;
+                    border-radius: 5px;
+                    background-color: #55c57a;
+                    color: #fff;
+                    cursor: pointer;
+                    transition: background-color 0.3s ease;
+
+                    &:hover {
+                        background-color: #3a9e5f;
+                    }
+                }
+            }
+        }
+
+        .showPreviewPage {
+            position: relative;
+
+            .returnButton {
+                position: absolute;
+                bottom: 20px;
+                left: 20px;
+                margin-top: 20px;
+                padding: 10px;
+                border: none;
+                border-radius: 5px;
+                background-color: #55c57a;
+                color: #fff;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+
+                &:hover {
+                    background-color: #3a9e5f;
+                }
+            }
+
+
+        }
     }
 }
 </style>

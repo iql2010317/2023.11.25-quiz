@@ -147,7 +147,7 @@ export default {
     <div class="questHomeBody">
         <div class="searchList">
             <div class="searchListTop">
-                <label>問卷標題</label>
+                <label>問卷標題：</label>
                 <input type="search" style="padding-left: 10px;" v-model="searchText" placeholder="請輸入搜尋標題">
             </div>
             <div class="searchListDown">
@@ -156,7 +156,8 @@ export default {
 
                 <label for="endDate">結束日期：</label>
                 <input id="endDate" class="searchEndTime" type="date" v-model="searchEndTime">
-                <button class="searchButton" v-on:click="searchParam()">搜尋</button>
+                <button class="searchButton" v-on:click="searchParam()">
+                    <i class="fa-solid fa-magnifying-glass" style="margin-right: 10px;"></i>搜尋</button>
                 <button><a href="/questHome/createQuestPage">新增問卷</a></button>
                 <a href="/questHome"><button class="searchButton" v-on:click="deleteQuestionnaireList()">刪除問卷</button></a>
 
@@ -168,7 +169,7 @@ export default {
                     <tr>
                         <th>刪除</th>
                         <th>＃</th>
-                        <th>問卷(新的列表fromDB)
+                        <th>問卷
                         </th>
                         <th>狀態</th>
                         <th>開始時間</th>
@@ -396,6 +397,7 @@ export default {
 }
 
 @media screen and (max-width: 1250px) {
+
     .questHomeBody {
 
         .searchList,
@@ -413,9 +415,13 @@ export default {
             display: none;
         }
 
-        .searchListDown label{
+        .searchListDown label {
             display: none;
         }
+    }
+
+    .showPages {
+        margin-right: 30px;
     }
 }
 </style>

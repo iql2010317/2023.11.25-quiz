@@ -184,8 +184,9 @@ export default {
 <template>
     <div class="chartBody">
         <div class="showDetailPageHeader">
-            <span>{{ searchAllList.hwQuestionnaireList.startTime }}~~{{ searchAllList.hwQuestionnaireList.endTime }}</span>
-            <h6>問卷名稱:{{ searchAllList.hwQuestionnaireList.questionName }}</h6>
+            <span>{{ searchAllList.hwQuestionnaireList.startTime }}~~{{
+                searchAllList.hwQuestionnaireList.endTime }}</span>
+            <h6 style="text-align: center; font-size: 28pt;">問卷名稱:{{ searchAllList.hwQuestionnaireList.questionName }}</h6>
             <h6>問卷描述:{{ searchAllList.hwQuestionnaireList.description }}</h6>
         </div>
 
@@ -197,7 +198,6 @@ export default {
         </div>
 
     </div>
-
 </template>
 
 <style lang="scss" scoped>
@@ -210,10 +210,14 @@ export default {
     .showDetailPageHeader {
         width: 900px;
         border: 1px solid #ccc;
-        padding: 10px;
+        padding: 20px;
         border-radius: 10px;
         margin-bottom: 20px;
         background-color: #fff;
+
+        span {
+                margin-left: 650px;
+            }
     }
 
     .chart {
@@ -221,15 +225,15 @@ export default {
         flex-direction: column;
         align-items: center;
         width: 100%;
-        max-width: 800px;
+        max-width: 900px;
         padding: 20px;
         background-color: #f8f8f8;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
         canvas {
-            width: 400;
-            height: 450px;
+            width: 600px;
+            height: 600px;
             margin-bottom: 20px;
             border-radius: 6px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -237,4 +241,29 @@ export default {
     }
 }
 
+
+@media screen and (max-width: 1250px) {
+
+    .chartBody {
+
+        .showDetailPageHeader {
+            width: 600px;
+            span {
+                margin-left: 350px;
+            }
+        }
+
+        .chart {
+            max-width: 600px;
+
+            canvas {
+                width: 300px;
+                height: 300px;
+            }
+        }
+    }
+
+
+
+}
 </style>

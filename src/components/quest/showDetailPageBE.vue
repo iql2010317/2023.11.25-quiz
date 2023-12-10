@@ -292,8 +292,9 @@ export default {
 <template>
     <div class="detailBody">
         <div class="showDetailPageHeader">
-            <span>{{ searchAllList.hwQuestionnaireList.startTime }}~~{{ searchAllList.hwQuestionnaireList.endTime }}</span>
-            <h6>問卷名稱:{{ searchAllList.hwQuestionnaireList.questionName }}</h6>
+            <span>{{ searchAllList.hwQuestionnaireList.startTime }}~~{{
+                searchAllList.hwQuestionnaireList.endTime }}</span>
+            <h6 style="text-align: center; font-size: 28pt;">問卷名稱:{{ searchAllList.hwQuestionnaireList.questionName }}</h6>
             <h6>問卷描述:{{ searchAllList.hwQuestionnaireList.description }}</h6>
         </div>
 
@@ -413,6 +414,9 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin-top: 15px;
+    // height: 97.6vh;
+    
 
     .showDetailPageHeader {
         width: 900px;
@@ -421,6 +425,10 @@ export default {
         border-radius: 10px;
         margin-bottom: 20px;
         background-color: #fff;
+
+        span {
+            margin-left: 650px;
+        }
     }
 
     .chart {
@@ -428,7 +436,7 @@ export default {
         flex-direction: column;
         align-items: center;
         width: 100%;
-        max-width: 800px;
+        max-width: 900px;
         padding: 20px;
         background-color: #f8f8f8;
         border-radius: 8px;
@@ -447,10 +455,11 @@ export default {
     .userListBody {
         width: 900px;
         height: 400px;
-        border: 1px solid #ccc;
+        // border: 1px solid #ccc;
         border-radius: 10px;
         // overflow: auto;
-        background-color: #fff;
+        background-color: #f0f0f0;
+
 
         .usertable {
             width: 900px;
@@ -458,12 +467,15 @@ export default {
             border: 1px solid #ccc;
             border-radius: 10px;
             background-color: #fff;
+            
+
 
 
             table {
                 width: 100%;
                 border-collapse: collapse;
                 border-spacing: 0;
+                
             }
 
             th,
@@ -486,6 +498,7 @@ export default {
         .pagination {
             display: flex;
             justify-content: center;
+            background-color: #f0f0f0;
         }
     }
 
@@ -506,8 +519,8 @@ export default {
         // display: flex;
         // margin-top: 100px;
         position: absolute;
-        top: 50%;
-        left: 50%;
+        top: 49.1%;
+        left: 48.8%;
         transform: translate(-50%, -50%);
         background-color: white;
         width: 900px;
@@ -576,22 +589,171 @@ button:hover {
 @media screen and (max-width: 1250px) {
 
     .detailBody {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 15px;
+
         .showDetailPageHeader {
             width: 600px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background-color: #fff;
+
+            span {
+                margin-left: 350px;
+            }
         }
+
+        .chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+            canvas {
+                width: 400;
+                height: 450px;
+                margin-bottom: 20px;
+                border-radius: 6px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+        }
+
 
         .userListBody {
             width: 600px;
             height: 400px;
+            border-radius: 10px;
+            // overflow: auto;
 
             .usertable {
                 width: 600px;
                 height: 338px;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+                background-color: #fff;
+
 
                 table {
                     width: 100%;
+                    border-collapse: collapse;
+                    border-spacing: 0;
+                }
+
+                th,
+                td {
+                    border: 1px solid #ccc;
+                    padding: 10px;
+                    text-align: center;
+                }
+
+                th {
+                    background-color: #BAE8CA;
+                    color: black;
+                }
+
+                tr:nth-child(even) {
+                    background-color: #BBFFD8;
                 }
             }
+
+            .pagination {
+                display: flex;
+                justify-content: center;
+            }
         }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* 半透明黑色背景 */
+            z-index: 1;
+            /* 放置於下方 */
+        }
+
+
+        .EachUserAnswerReview {
+            // display: flex;
+            // margin-top: 100px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            width: 600px;
+            height: 60vh;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+
+            .userInfoTable {
+                width: 100%;
+                margin-bottom: 20px;
+
+                td {
+                    width: 25%;
+                    /* 四個欄位均分寬度 */
+                    text-align: left;
+                    padding: 8px;
+                    border: 1px solid #ccc;
+                }
+
+                /* 隔行變色 */
+                tr:nth-child(even) {
+                    background-color: #f8f8f8;
+                }
+            }
+
+            .LeftRight {
+                display: flex;
+
+
+                .qListTable,
+                .userAnswerTable {
+                    flex: 1;
+                    /* 均分空間 */
+                    margin-right: 20px;
+                    /* 調整間距 */
+                }
+
+            }
+
+        }
+
+
     }
-}</style>
+
+    button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #4CAF50;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        transition-duration: 0.4s;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+}
+</style>

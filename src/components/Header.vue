@@ -69,8 +69,10 @@ export default {
         <button @click="openAndCloseAdminLogin()">
             <i class="fa-solid fa-gear" style="margin-right: 10px;"></i>開發者設定</button>
         <div class="adminLogin" v-if="openAdminLoginArea">
-            <input type="text" style="padding-left: 10px;" placeholder="key in admin name" v-model="adminName" v-if="!loggedIn">
-            <input type="password" style="padding-left: 10px;" placeholder="key in admin password" v-model="adminPwd" v-if="!loggedIn">
+            <input type="text" style="padding-left: 10px;" placeholder="key in admin name" v-model="adminName"
+                v-if="!loggedIn">
+            <input type="password" style="padding-left: 10px;" placeholder="key in admin password" v-model="adminPwd"
+                v-if="!loggedIn">
             <div class="logButnArea">
                 <button @click="adminLogin" v-if="!loggedIn">
                     <i class="fa-solid fa-right-to-bracket" style="margin-right: 10px;"></i>開發者登入</button>
@@ -94,6 +96,7 @@ export default {
     margin-top: 20px;
     /* 居中内容 */
 
+
     button {
         margin-bottom: 10px;
         /* 按钮间距 */
@@ -111,9 +114,11 @@ export default {
         transition: background-color 0.3s ease;
         /* 过渡效果 */
 
+
         &:hover {
             background-color: #2980b9;
             /* 悬停时按钮背景颜色 */
+
         }
     }
 
@@ -172,6 +177,7 @@ export default {
             color: blue;
             transition: text-decoration-color 0.3s;
             border-bottom: 1px solid transparent;
+            margin-left: 15px;
 
             &:hover {
                 text-decoration-color: blue;
@@ -185,6 +191,55 @@ export default {
 
     .adminDevArea {
         width: 225px;
+    }
+}
+
+@media screen and (max-width: 870px) {
+
+    .adminDevArea {
+        width: 130%;
+        display: flex;
+        flex-direction: row;
+        margin-left: calc(50% - 300px); ////
+        align-items: start;
+
+        button {
+            top: 20px;
+            margin-bottom: 0px;
+            padding: 8px 12px;
+
+        }
+
+        .adminLogin {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-top: 0px;
+
+
+            input {
+                margin-bottom: 00px;
+                margin-left: 10px;
+                padding: 8px;
+                width: calc(15% + 72px);
+
+            }
+
+            button {
+                margin-left: 10px;
+                padding: 8px 12px;
+            }
+        }
+
+        .adminRouter {
+            display: flex;
+            justify-content: center;
+            margin-top: 0px;
+
+            .router-link-custom {
+                margin-left: 25px;
+            }
+        }
     }
 }
 </style>

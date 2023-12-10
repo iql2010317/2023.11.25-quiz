@@ -21,6 +21,14 @@ import { RouterView } from "vue-router";
     background-color: #f0f0f0;
 }
 
+@media screen and (max-width: 870px) {
+
+    .appBody {
+        display: flex;
+        flex-direction: column;
+
+    }
+}
 </style>
 
 

@@ -165,7 +165,7 @@ export default {
     <div class="questHomeBody">
       <div class="searchList">
         <div class="searchListTop">
-          <label>問卷標題</label>
+          <label>問卷標題：</label>
           <input type="search" style="padding-left: 10px;" v-model="searchText" placeholder="請輸入搜尋標題">
         </div>
         <div class="searchListDown">
@@ -173,7 +173,8 @@ export default {
           <input class="searchStartTime" type="date" v-model="searchStartTime">
           <label for="endDate">結束日期：</label>
           <input class="searchEndTime" type="date" v-model="searchEndTime">
-          <button class="searchButton" v-on:click="searchParam()">搜尋</button>
+          <button class="searchButton" v-on:click="searchParam()">
+            <i class="fa-solid fa-magnifying-glass" style="margin-right: 10px;"></i>搜尋</button>
         </div>
       </div>
       <div class="showList">
@@ -404,6 +405,12 @@ export default {
       display: none;
     }
   }
+
+  .showPages {
+      margin-right: 30px;
+    }
+
+
 }
 
 
